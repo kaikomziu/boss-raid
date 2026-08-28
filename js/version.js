@@ -15,5 +15,10 @@ export const VERSION_HISTORY = [
     date: '2026-08-28',
     notes: '画面スキンを23種類追加(🎨スキンボタンから変更、選択はlocalStorageに保存)。スペース/エンターキーを長押しした時にキーリピートで連打扱いになっていたのを修正(1回押し=1ダメージ)。',
   },
+  {
+    version: '1.1.1',
+    date: '2026-08-28',
+    notes: 'HP表示を大きく見やすく。現在HPを特大の数字で表示し、億/万の概算(例: 約9,823万 / 1.15億)を併記。HPバーを太くしてパーセントをバー中央に大きく表示。残り15%未満で赤く点滅。',
+  },
 ];
 export const CURRENT_VERSION = VERSION_HISTORY[VERSION_HISTORY.length - 1].version;

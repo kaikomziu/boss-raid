@@ -100,9 +100,20 @@ body {
   filter: blur(2px);
 }
 
-#hpWrap { margin-top: 10px; }
+#hpWrap { margin-top: 12px; }
+.hp-readout {
+  font-size: clamp(28px, 8.5vw, 46px); font-weight: 900; line-height: 1;
+  font-variant-numeric: tabular-nums; letter-spacing: .01em;
+  color: var(--ink);
+  text-shadow: 0 0 20px hsl(var(--boss-hue) 90% 55% / .35);
+}
+#hpApprox {
+  font-size: 13px; color: var(--muted); margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
 #hpBar {
-  height: 20px; border-radius: 999px; overflow: hidden;
+  position: relative; height: 30px; border-radius: 999px; overflow: hidden;
+  margin-top: 8px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   box-shadow: inset 0 2px 6px rgba(0,0,0,.35);
@@ -113,11 +124,17 @@ body {
   box-shadow: 0 0 16px var(--accent);
   transition: width .12s linear;
 }
-.hp-line {
-  display: flex; justify-content: space-between; font-size: 12.5px;
-  margin-top: 5px; color: var(--muted); font-variant-numeric: tabular-nums;
+#hpPct {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: #fff;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 3px rgba(0,0,0,.9), 0 0 3px rgba(0,0,0,.8);
+  letter-spacing: .02em;
 }
-.hp-line span:last-child { color: var(--accent); font-weight: 700; }
+#hpWrap.crit .hp-readout { color: #ff5a5a; animation: critpulse 1s ease-in-out infinite; }
+#hpWrap.crit #hpApprox { color: #ff8a8a; }
+@keyframes critpulse { 50% { opacity: .55; } }
 .hint { margin-top: 10px; font-size: 11.5px; color: var(--muted); }
 
 #contrib { display: flex; gap: 10px; padding: 10px 0 14px; }

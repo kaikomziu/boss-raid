@@ -11,6 +11,17 @@ import { SKINS, SKIN_PROPS } from './skins.js';
 const $ = (s) => document.querySelector(s);
 const fmt = (n) => Math.max(0, Math.floor(n)).toLocaleString('en-US');
 
+// 億 / 万 の概算表記(例: 98234102 -> "9,823万")
+function jpShort(n) {
+  n = Math.max(0, Math.floor(n));
+  if (n >= 1e8) {
+    const oku = n / 1e8;
+    return (oku >= 10 ? oku.toFixed(1) : oku.toFixed(2)) + '億';
+  }
+  if (n >= 1e4) return Math.floor(n / 1e4).toLocaleString('en-US') + '万';
+  return n.toLocaleString('en-US');
+}
+
 // ---------------- 永続データ ----------------
 const LS = {
   get total() { return +localStorage.getItem('bossraid_totalClicks') || 0; },
@@ -46,7 +57,7 @@ let lastRowTime = 0;
 // ---------------- DOM ----------------
 const el = {};
 function cacheDom() {
-  ['bossEmoji','bossName','bossNo','hpFill','hpText','hpPct','players',
+  ['bossEmoji','bossName','bossNo','hpWrap','hpFill','hpText','hpApprox','hpPct','players',
    'myTotal','myDmg','myDmgPct','killCount','dps','muteBtn','infoBtn',
    'setupBanner','banner','app','fxCanvas','popLayer','shakeWrap'].forEach((k) => {
     el[k] = document.getElementById(k);
@@ -65,8 +76,10 @@ function render() {
 
   const pct = boss.maxHp > 0 ? (shownHp / boss.maxHp) * 100 : 0;
   el.hpFill.style.width = pct.toFixed(3) + '%';
-  el.hpText.textContent = `${fmt(shownHp)} / ${fmt(boss.maxHp)}`;
-  el.hpPct.textContent = pct.toFixed(pct < 1 ? 4 : 1) + '%';
+  el.hpText.textContent = fmt(shownHp);
+  el.hpApprox.textContent = `約 ${jpShort(shownHp)} / ${jpShort(boss.maxHp)}`;
+  el.hpPct.textContent = pct.toFixed(pct < 10 ? 2 : 1) + '%';
+  el.hpWrap.classList.toggle('crit', pct > 0 && pct < 15);
 
   el.myTotal.textContent = fmt(LS.total);
   el.myDmg.textContent = fmt(myBossDamage);
