@@ -71,6 +71,7 @@ export function joinPresence(onCount) {
 
   const hb = setInterval(beat, 20000);
   const sweep = setInterval(recount, 10000);
+  addEventListener('visibilitychange', () => { if (!document.hidden) beat(); });
   const bye = () => {
     clearInterval(hb);
     clearInterval(sweep);
