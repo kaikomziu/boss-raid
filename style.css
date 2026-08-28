@@ -1,0 +1,157 @@
+:root {
+  --boss-hue: 0;
+  --accent: hsl(var(--boss-hue) 90% 60%);
+  --accent-dim: hsl(var(--boss-hue) 70% 42%);
+  --bg0: #070912;
+  --bg1: #0e1120;
+  --ink: #eef1ff;
+  --muted: #8b93b8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  height: 100%;
+  background: radial-gradient(1200px 700px at 50% -10%, hsl(var(--boss-hue) 60% 14%), var(--bg0) 60%), var(--bg0);
+  color: var(--ink);
+  font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, sans-serif;
+  overflow: hidden;
+  user-select: none;
+  transition: background .8s ease;
+}
+#fxCanvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
+
+#app {
+  position: relative; z-index: 2;
+  height: 100%;
+  display: flex; flex-direction: column;
+  max-width: 620px; margin: 0 auto; padding: 10px 14px env(safe-area-inset-bottom);
+}
+
+#topbar { display: flex; align-items: center; justify-content: space-between; padding: 4px 0 8px; }
+.logo { font-size: 20px; letter-spacing: .04em; text-shadow: 0 0 16px var(--accent); }
+.topbtns { display: flex; gap: 6px; }
+.ghost {
+  background: rgba(255,255,255,.06); color: var(--ink);
+  border: 1px solid rgba(255,255,255,.14); border-radius: 999px;
+  padding: 6px 12px; font-size: 12px; cursor: pointer;
+}
+.ghost:hover { background: rgba(255,255,255,.12); }
+
+#presenceRow {
+  text-align: center; font-size: 12.5px; color: var(--muted);
+  padding: 6px 0 4px;
+}
+#presenceRow b { color: var(--ink); }
+.pulse {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: #35e07f; margin-right: 6px; vertical-align: middle;
+  box-shadow: 0 0 0 0 rgba(53,224,127,.7); animation: pulse 1.8s infinite;
+}
+@keyframes pulse { 70% { box-shadow: 0 0 0 9px rgba(53,224,127,0); } 100% { box-shadow: 0 0 0 0 rgba(53,224,127,0); } }
+
+.setup {
+  display: none; margin: 8px 0; padding: 10px 12px; font-size: 12px; line-height: 1.7;
+  background: rgba(255,196,0,.1); border: 1px solid rgba(255,196,0,.35); border-radius: 12px; color: #ffd873;
+}
+.setup.show { display: block; }
+.setup code { background: rgba(0,0,0,.35); padding: 1px 5px; border-radius: 5px; }
+
+#stage { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
+#shakeWrap { width: 100%; text-align: center; will-change: transform; }
+
+.boss-no {
+  font-size: 12px; letter-spacing: .25em; color: var(--accent);
+  font-weight: 700;
+}
+.boss-name {
+  font-size: clamp(18px, 5vw, 26px); font-weight: 800; margin: 2px 0 6px;
+  text-shadow: 0 0 20px hsl(var(--boss-hue) 90% 55% / .6);
+}
+
+#clickArea {
+  position: relative; cursor: pointer;
+  height: min(42vh, 300px);
+  display: flex; align-items: center; justify-content: center;
+  touch-action: manipulation;
+}
+.boss-emoji {
+  font-size: min(38vw, 220px); line-height: 1;
+  filter: drop-shadow(0 12px 30px hsl(var(--boss-hue) 90% 45% / .55));
+  transition: transform .09s ease;
+  will-change: transform;
+}
+.boss-shadow {
+  position: absolute; bottom: 6%; left: 50%; transform: translateX(-50%);
+  width: 46%; height: 22px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0,0,0,.55), transparent 70%);
+  filter: blur(2px);
+}
+
+#hpWrap { margin-top: 10px; }
+#hpBar {
+  height: 20px; border-radius: 999px; overflow: hidden;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.5);
+}
+#hpFill {
+  height: 100%; width: 100%;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  box-shadow: 0 0 16px var(--accent);
+  transition: width .12s linear;
+}
+.hp-line {
+  display: flex; justify-content: space-between; font-size: 12.5px;
+  margin-top: 5px; color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.hp-line span:last-child { color: var(--accent); font-weight: 700; }
+.hint { margin-top: 10px; font-size: 11.5px; color: var(--muted); }
+
+#contrib { display: flex; gap: 10px; padding: 10px 0 14px; }
+.card {
+  flex: 1; background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 14px;
+  padding: 10px 12px; text-align: center;
+}
+.card-label { font-size: 10.5px; color: var(--muted); letter-spacing: .05em; }
+.card-value { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.card-sub { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+.card-sub span { color: var(--accent); font-weight: 700; }
+
+/* ダメージポップ */
+#popLayer { position: fixed; inset: 0; pointer-events: none; z-index: 45; }
+.dmg {
+  position: absolute; transform: translate(-50%, -50%);
+  font-weight: 900; font-variant-numeric: tabular-nums;
+  animation: rise .9s ease-out forwards;
+  text-shadow: 0 2px 8px rgba(0,0,0,.6);
+}
+.dmg-me { color: #fff; font-size: 22px; }
+.dmg-others { color: hsl(var(--boss-hue) 90% 75%); font-size: 15px; opacity: .8; }
+@keyframes rise {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(.5); }
+  15% { opacity: 1; transform: translate(-50%,-70%) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%,-160%) scale(1); }
+}
+
+/* バナー */
+#banner {
+  position: fixed; left: 50%; top: 18%; transform: translate(-50%, -20px);
+  z-index: 50; width: min(92vw, 440px);
+  background: rgba(12,14,26,.92); backdrop-filter: blur(8px);
+  border: 1px solid var(--accent); border-radius: 18px;
+  box-shadow: 0 0 40px hsl(var(--boss-hue) 90% 50% / .5);
+  padding: 18px 20px; text-align: center;
+  opacity: 0; pointer-events: none; transition: opacity .3s, transform .3s;
+}
+#banner.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.banner-title { font-size: 19px; font-weight: 900; text-shadow: 0 0 18px var(--accent); }
+.banner-title small { font-size: 12px; color: var(--muted); }
+.banner-sub { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.7; }
+.info-sub { text-align: left; }
+.ver { list-style: none; margin-top: 10px; max-height: 34vh; overflow-y: auto; }
+.ver li { font-size: 11.5px; padding: 6px 0; border-top: 1px solid rgba(255,255,255,.1); }
+.ver li span { color: var(--accent); }
+
+@media (max-width: 380px) {
+  .boss-emoji { font-size: 44vw; }
+}
