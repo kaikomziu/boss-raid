@@ -48,7 +48,7 @@ export function subscribeState(onChange) {
 // 各自 20 秒ごとに track で心拍を打ち、心拍が古い key は数えない。
 export function joinPresence(onCount) {
   const id = Math.random().toString(36).slice(2);
-  const STALE = 45000;
+  const STALE = 40000;
   const ch = supabase.channel('boss_raid_presence', {
     config: { presence: { key: id } },
   });
@@ -69,8 +69,8 @@ export function joinPresence(onCount) {
   ch.on('presence', { event: 'sync' }, recount);
   ch.subscribe((status) => { if (status === 'SUBSCRIBED') beat(); });
 
-  const hb = setInterval(beat, 20000);
-  const sweep = setInterval(recount, 10000);
+  const hb = setInterval(beat, 15000);
+  const sweep = setInterval(recount, 5000);
   addEventListener('visibilitychange', () => { if (!document.hidden) beat(); });
   const bye = () => {
     clearInterval(hb);

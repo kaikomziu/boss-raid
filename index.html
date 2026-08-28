@@ -64,6 +64,29 @@
   </footer>
 </div>
 
+<div id="petWidget" class="collapsed">
+  <button id="petToggle" aria-label="ペット">🥚</button>
+  <div id="petPanel">
+    <div id="petAdopt" hidden>
+      <p class="pet-adopt-h">タマゴをえらんでね</p>
+      <div id="petEggs"></div>
+    </div>
+    <div id="petMain" hidden>
+      <div class="pet-badge"><span id="petStageName">たまご</span> ・ <span id="petAge">0日</span></div>
+      <div id="petAvatar">🥚</div>
+      <div id="petSpeech"></div>
+      <button id="petName" class="pet-name">なまえ</button>
+      <div class="pet-stat"><label>なかよし</label><div class="pet-bar"><div id="petAffFill"></div></div></div>
+      <div class="pet-stat"><label>おなか</label><div class="pet-bar"><div id="petHunFill"></div></div></div>
+      <div class="pet-actions">
+        <button id="petPet">🖐 なでる</button>
+        <button id="petFeed">🍖 ごはん</button>
+      </div>
+      <p class="pet-note">※ ペットはボスへのダメージには影響しません</p>
+    </div>
+  </div>
+</div>
+
 <div id="popLayer"></div>
 <div id="banner"></div>
 

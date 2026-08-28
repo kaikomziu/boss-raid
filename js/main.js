@@ -7,6 +7,7 @@ import {
 } from './fx.js';
 import { VERSION_HISTORY, CURRENT_VERSION } from './version.js';
 import { SKINS, SKIN_PROPS } from './skins.js';
+import { initPet, petCelebrate } from './pet.js';
 
 const $ = (s) => document.querySelector(s);
 const fmt = (n) => Math.max(0, Math.floor(n)).toLocaleString('en-US');
@@ -153,6 +154,7 @@ function onBossDefeated(newIndex, newHp) {
 
   playFanfare();
   fireworks(4200);
+  petCelebrate();
   showBanner(
     `💥 ${beaten.name} を撃破！ 💥`,
     contributed
@@ -289,6 +291,9 @@ async function boot() {
   // スキン
   buildSkinGrid();
   applySkin(LS.skin);
+
+  // ペット(クリックとは独立)
+  initPet();
   const skinPanel = document.getElementById('skinPanel');
   document.getElementById('skinBtn').addEventListener('click', () => skinPanel.classList.add('show'));
   document.getElementById('skinClose').addEventListener('click', () => skinPanel.classList.remove('show'));
