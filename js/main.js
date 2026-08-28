@@ -6,6 +6,7 @@ import {
   initCanvas, fireworks, initPopLayer, popDamage, initShake, shake,
 } from './fx.js';
 import { VERSION_HISTORY, CURRENT_VERSION } from './version.js';
+import { SKINS, SKIN_PROPS } from './skins.js';
 
 const $ = (s) => document.querySelector(s);
 const fmt = (n) => Math.max(0, Math.floor(n)).toLocaleString('en-US');
@@ -22,6 +23,8 @@ const LS = {
   set curIndex(v) { localStorage.setItem('bossraid_curIndex', v); },
   get curDmg() { return +localStorage.getItem('bossraid_curDmg') || 0; },
   set curDmg(v) { localStorage.setItem('bossraid_curDmg', v); },
+  get skin() { return localStorage.getItem('bossraid_skin') || 'boss'; },
+  set skin(v) { localStorage.setItem('bossraid_skin', v); },
 };
 
 // ---------------- 状態 ----------------
@@ -270,11 +273,25 @@ async function boot() {
   });
   el.infoBtn.addEventListener('click', showInfo);
 
+  // スキン
+  buildSkinGrid();
+  applySkin(LS.skin);
+  const skinPanel = document.getElementById('skinPanel');
+  document.getElementById('skinBtn').addEventListener('click', () => skinPanel.classList.add('show'));
+  document.getElementById('skinClose').addEventListener('click', () => skinPanel.classList.remove('show'));
+  skinPanel.addEventListener('click', (e) => { if (e.target === skinPanel) skinPanel.classList.remove('show'); });
+
   // クリック領域
   const area = document.getElementById('clickArea');
   area.addEventListener('pointerdown', (e) => { e.preventDefault(); hit(); }, { passive: false });
+  // スペース/エンター: キーリピート(長押し)は無視して1回だけ
   window.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); hit(); }
+    if (e.repeat) return;
+    if (e.code === 'Space' || e.code === 'Enter') {
+      if (skinPanel.classList.contains('show')) return;
+      e.preventDefault();
+      hit();
+    }
   });
 
   // 同じボスへの自分のダメージ記録を復元(オフラインでも)
@@ -299,6 +316,37 @@ async function boot() {
 
   flushTimer = setInterval(flush, FLUSH_INTERVAL);
   window.addEventListener('beforeunload', flush);
+}
+
+// ---------------- スキン ----------------
+function applySkin(id) {
+  const skin = SKINS.find((s) => s.id === id) || SKINS[0];
+  const root = document.documentElement;
+  SKIN_PROPS.forEach((p) => root.style.removeProperty(p));
+  for (const [k, v] of Object.entries(skin.vars)) root.style.setProperty(k, v);
+  LS.skin = skin.id;
+  document.querySelectorAll('.skin-swatch').forEach((b) => {
+    b.classList.toggle('sel', b.dataset.id === skin.id);
+  });
+}
+
+function buildSkinGrid() {
+  const grid = document.getElementById('skinGrid');
+  grid.innerHTML = '';
+  for (const s of SKINS) {
+    const bg0 = s.vars['--bg0'] || getComputedStyle(document.documentElement).getPropertyValue('--bg0');
+    const bg1 = s.vars['--bg1'] || bg0;
+    const acc = s.vars['--skin-accent'] || 'hsl(200 90% 62%)';
+    const b = document.createElement('button');
+    b.className = 'skin-swatch';
+    b.dataset.id = s.id;
+    b.style.setProperty('--sw-acc', acc);
+    b.innerHTML =
+      `<span class="chip" style="background:linear-gradient(150deg,${bg0},${bg1})">${s.icon}</span>` +
+      `<span class="nm">${s.name}</span>`;
+    b.addEventListener('click', () => applySkin(s.id));
+    grid.appendChild(b);
+  }
 }
 
 function showInfo() {
