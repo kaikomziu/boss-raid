@@ -144,6 +144,9 @@ function adopt(id) {
   pop('hop');
 }
 
+// キーバインドから「なでる」を呼ぶ用
+export function pokePet() { doPet(); }
+
 // ボス撃破時に呼ばれる(クリックではなくイベント連動)
 export function petCelebrate() {
   if (!pet) return;

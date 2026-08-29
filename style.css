@@ -183,14 +183,14 @@ body {
 .ver li { font-size: 11.5px; padding: 6px 0; border-top: 1px solid var(--border); }
 .ver li span { color: var(--accent); }
 
-/* スキン選択パネル */
-#skinPanel {
+/* モーダルパネル(スキン / キー設定 共通) */
+#skinPanel, #keybindPanel {
   position: fixed; inset: 0; z-index: 60;
   display: none; align-items: center; justify-content: center;
   background: rgba(0,0,0,.55); backdrop-filter: blur(3px);
   padding: 16px;
 }
-#skinPanel.show { display: flex; }
+#skinPanel.show, #keybindPanel.show { display: flex; }
 .panel {
   width: min(96vw, 460px); max-height: 82vh; display: flex; flex-direction: column;
   background: var(--panel-bg); color: var(--panel-ink);
@@ -222,6 +222,37 @@ body {
 .skin-swatch .nm { font-size: 10.5px; color: var(--muted); text-align: center; line-height: 1.25; }
 .skin-swatch.sel { border-color: var(--accent); }
 .skin-swatch.sel .nm { color: var(--ink); font-weight: 700; }
+
+/* キー設定パネル */
+#keybindList { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+.kb-row {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 10px; border: 1px solid var(--border); border-radius: 12px;
+  background: var(--surface);
+}
+.kb-label { font-size: 12.5px; font-weight: 700; }
+.kb-keys { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.kb-keys kbd {
+  display: inline-flex; align-items: center; gap: 5px;
+  font: inherit; font-size: 11px; font-weight: 700;
+  padding: 4px 8px; border-radius: 7px; cursor: pointer;
+  background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--panel-ink);
+}
+.kb-keys kbd:hover { border-color: #ff7043; }
+.kb-x { opacity: .6; font-size: 10px; }
+.kb-none { color: var(--muted); font-size: 11px; font-style: normal; }
+.kb-add {
+  font: inherit; font-size: 11px; font-weight: 700; cursor: pointer;
+  padding: 4px 10px; border-radius: 7px;
+  background: none; color: var(--accent);
+  border: 1px dashed var(--border);
+}
+.kb-add:hover { border-color: var(--accent); }
+.kb-capturing { font-size: 11.5px; font-weight: 700; color: var(--accent); }
+.kb-capturing small { color: var(--muted); font-weight: 400; }
+.kb-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
+.kb-tip { font-size: 9.5px; color: var(--muted); text-align: right; }
 
 /* ペットウィジェット */
 #petWidget {

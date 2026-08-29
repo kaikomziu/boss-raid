@@ -25,5 +25,10 @@ export const VERSION_HISTORY = [
     date: '2026-08-28',
     notes: 'ペット要素を追加(左下のタマゴボタン)。クリック(ボスへのダメージ)とは完全に独立。タマゴを選んで飼い始め、実時間経過と「なでる」「ごはん」でなかよし度が上がり5段階に成長。ボス撃破時にペットも喜ぶ。セーブはlocalStorage。同時接続人数のカウントをさらに厳しめに調整(心拍15秒・判定40秒)。',
   },
+  {
+    version: '1.3.0',
+    date: '2026-08-29',
+    notes: 'PC向けキーバインド設定を追加(⌨キー設定ボタン、PCのみ表示)。こうげき/ペットをなでる/スキンパネル/サウンドの4操作に好きなキーを複数割り当て可能。設定はlocalStorage保存、デフォルトに戻すボタンあり。',
+  },
 ];
 export const CURRENT_VERSION = VERSION_HISTORY[VERSION_HISTORY.length - 1].version;

@@ -7,7 +7,8 @@ import {
 } from './fx.js';
 import { VERSION_HISTORY, CURRENT_VERSION } from './version.js';
 import { SKINS, SKIN_PROPS } from './skins.js';
-import { initPet, petCelebrate } from './pet.js';
+import { initPet, petCelebrate, pokePet } from './pet.js';
+import { initKeybinds } from './keybinds.js';
 
 const $ = (s) => document.querySelector(s);
 const fmt = (n) => Math.max(0, Math.floor(n)).toLocaleString('en-US');
@@ -280,12 +281,8 @@ async function boot() {
   initShake(el.shakeWrap);
 
   setMuted(LS.muted);
-  el.muteBtn.textContent = LS.muted ? '🔇 音 OFF' : '🔊 音 ON';
-  el.muteBtn.addEventListener('click', () => {
-    setMuted(!isMuted());
-    LS.muted = isMuted();
-    el.muteBtn.textContent = isMuted() ? '🔇 音 OFF' : '🔊 音 ON';
-  });
+  paintMuteBtn();
+  el.muteBtn.addEventListener('click', toggleMute);
   el.infoBtn.addEventListener('click', showInfo);
 
   // スキン
@@ -295,22 +292,21 @@ async function boot() {
   // ペット(クリックとは独立)
   initPet();
   const skinPanel = document.getElementById('skinPanel');
-  document.getElementById('skinBtn').addEventListener('click', () => skinPanel.classList.add('show'));
+  document.getElementById('skinBtn').addEventListener('click', toggleSkinPanel);
   document.getElementById('skinClose').addEventListener('click', () => skinPanel.classList.remove('show'));
   skinPanel.addEventListener('click', (e) => { if (e.target === skinPanel) skinPanel.classList.remove('show'); });
 
-  // クリック領域
+  // PC向けキーバインド
+  initKeybinds({
+    attack: () => hit(),
+    pet: () => pokePet(),
+    skin: () => toggleSkinPanel(),
+    mute: () => toggleMute(),
+  });
+
+  // クリック領域(キーリピートによる連打は keybinds.js 側で e.repeat を無視)
   const area = document.getElementById('clickArea');
   area.addEventListener('pointerdown', (e) => { e.preventDefault(); hit(); }, { passive: false });
-  // スペース/エンター: キーリピート(長押し)は無視して1回だけ
-  window.addEventListener('keydown', (e) => {
-    if (e.repeat) return;
-    if (e.code === 'Space' || e.code === 'Enter') {
-      if (skinPanel.classList.contains('show')) return;
-      e.preventDefault();
-      hit();
-    }
-  });
 
   // 同じボスへの自分のダメージ記録を復元(オフラインでも)
   if (LS.curIndex === boss.index) myBossDamage = LS.curDmg;
@@ -365,6 +361,19 @@ function buildSkinGrid() {
     b.addEventListener('click', () => applySkin(s.id));
     grid.appendChild(b);
   }
+}
+
+// ---------------- トグル系(ボタン & キーバインド共用) ----------------
+function paintMuteBtn() {
+  el.muteBtn.textContent = isMuted() ? '🔇 音 OFF' : '🔊 音 ON';
+}
+function toggleMute() {
+  setMuted(!isMuted());
+  LS.muted = isMuted();
+  paintMuteBtn();
+}
+function toggleSkinPanel() {
+  document.getElementById('skinPanel').classList.toggle('show');
 }
 
 function showInfo() {
