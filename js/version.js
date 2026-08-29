@@ -65,5 +65,10 @@ export const VERSION_HISTORY = [
     date: '2026-08-29',
     notes: 'URLに ?spectate を付けると観戦モードで開けるように(同時接続人数に数えられず、ダメージも送らない。動作確認用)。',
   },
+  {
+    version: '1.6.2',
+    date: '2026-08-29',
+    notes: '画面下部に「🎮 作者の他のゲームで遊ぶ」ボタンを追加(MY GAMES LINKS へ新しいタブで移動)。',
+  },
 ];
 export const CURRENT_VERSION = VERSION_HISTORY[VERSION_HISTORY.length - 1].version;
