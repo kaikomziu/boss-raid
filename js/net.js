@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
+import { SUPABASE_URL, SUPABASE_ANON_KEY, LIVE_INTERVAL } from './config.js';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
@@ -37,22 +37,41 @@ export async function sendHit(dmg, players = 0) {
   return { data: Array.isArray(data) ? data[0] : data };
 }
 
-// 他プレイヤーのタップ位置をリアルタイム共有(DB不要の broadcast)
-export function joinTaps({ onTap } = {}) {
-  const ch = supabase.channel('boss_raid_taps', {
+// リアルタイム共有(DB不要の broadcast)。
+//  event 'd' = ダメージ量(体感の速さを担う速い経路)
+//  event 't' = タップ位置
+export function joinLive({ onDamage, onTap } = {}) {
+  const ch = supabase.channel('boss_raid_live', {
     config: { broadcast: { self: false } },
   });
+  if (onDamage) ch.on('broadcast', { event: 'd' }, ({ payload }) => onDamage(payload));
   if (onTap) ch.on('broadcast', { event: 't' }, ({ payload }) => onTap(payload));
   ch.subscribe();
-  let last = 0;
+
+  let acc = 0, bi = 0, dTimer = null, lastTap = 0;
+
+  function flushDmg() {
+    dTimer = null;
+    if (acc > 0) {
+      ch.send({ type: 'broadcast', event: 'd', payload: { d: acc, b: bi } });
+      acc = 0;
+    }
+  }
+
   return {
-    send(x, y) {
+    // クリックのたびに呼ぶ。LIVE_INTERVAL ごとにまとめて配信。
+    reportDamage(dmg, bossIndex) {
+      acc += dmg;
+      bi = bossIndex;
+      if (!dTimer) dTimer = setTimeout(flushDmg, LIVE_INTERVAL);
+    },
+    sendTap(x, y) {
       const now = performance.now();
-      if (now - last < 110) return;      // 送りすぎ防止
-      last = now;
+      if (now - lastTap < 110) return;
+      lastTap = now;
       ch.send({ type: 'broadcast', event: 't', payload: { x, y } });
     },
-    destroy() { supabase.removeChannel(ch); },
+    destroy() { clearTimeout(dTimer); supabase.removeChannel(ch); },
   };
 }
 

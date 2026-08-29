@@ -1,6 +1,6 @@
 import { FLUSH_INTERVAL } from './config.js';
 import { bossFor } from './bosses.js';
-import { fetchState, sendHit, subscribeState, joinPresence, joinTaps } from './net.js';
+import { fetchState, sendHit, subscribeState, joinPresence, joinLive } from './net.js';
 import {
   setMuted, isMuted, playHit, playFanfare,
   initCanvas, fireworks, initPopLayer, popDamage, initShake, shake,
@@ -66,10 +66,11 @@ const LS = {
 
 // ---------------- 状態 ----------------
 let boss = bossFor(0);
-let serverHp = boss.maxHp;
-let pendingDmg = 0;
+let authHp = boss.maxHp;     // DBが返した確定HP(補正の基準)
+let displayHp = boss.maxHp;  // 画面に出すHP。自分の攻撃・他人のbroadcast・補正でのみ動き、原則減る一方
+let shownHp = boss.maxHp;    // displayHp へ滑らかに追従する実表示値
+let pendingDmg = 0;          // 未送信ダメージ(DB送信用。表示には使わない)
 let inFlight = 0;
-let shownHp = boss.maxHp;
 let defeatedCount = 0;
 let myBossDamage = 0;
 let sessionDmg = 0;
@@ -77,10 +78,10 @@ let peakPlayers = 0;
 let playersLive = 1;
 let ready = false;
 let backendOk = false;
-let taps = null;
+let live = null;
+let lastForce = 0;
 
 let dpsSamples = [];
-let lastRowHp = null;
 
 // ---------------- DOM ----------------
 const el = {};
@@ -92,12 +93,9 @@ function cacheDom() {
 }
 
 // ---------------- 描画 ----------------
-function targetHp() { return Math.max(0, serverHp - pendingDmg - inFlight); }
-
 function render() {
-  const t = targetHp();
-  shownHp += (t - shownHp) * 0.25;
-  if (Math.abs(shownHp - t) < 1) shownHp = t;
+  shownHp += (displayHp - shownHp) * 0.5;
+  if (Math.abs(shownHp - displayHp) < 1) shownHp = displayHp;
 
   const pct = boss.maxHp > 0 ? (shownHp / boss.maxHp) * 100 : 0;
   el.hpFill.style.width = pct.toFixed(3) + '%';
@@ -129,27 +127,20 @@ function paintBoss() {
   el.bossNo.textContent = `BOSS #${boss.index + 1}`;
 }
 
-// ---------------- サーバー行の反映 ----------------
+// ---------------- サーバー行の反映(確定値。ズレの補正に使う) ----------------
 function handleServerRow(row) {
   if (!row) return;
   defeatedCount = row.defeated_count ?? defeatedCount;
   if (row.peak_players != null) peakPlayers = Math.max(peakPlayers, row.peak_players);
 
-  const now = performance.now();
-  if (lastRowHp != null && row.boss_index === boss.index) {
-    const drop = lastRowHp - row.hp;
-    if (drop > 0) dpsSamples.push({ drop, t: now });
-  }
-  lastRowHp = row.hp;
-
   if (row.boss_index > boss.index) { onBossDefeated(row.boss_index, row.hp); return; }
   if (row.boss_index < boss.index) return;
 
-  const predicted = serverHp;
-  serverHp = row.hp;
-  const extra = predicted - row.hp - justFlushed;
-  justFlushed = 0;
-  if (extra > 0 && ready) flashOthers(extra);
+  authHp = row.hp;
+  // 確定値が表示より低い = broadcast を取りこぼした → すぐ合わせる(HPは減る一方)
+  if (authHp < displayHp) displayHp = authHp;
+  // 確定値が高い = broadcast を過剰カウント(送信前に離脱した人など) → ゆっくり戻す
+  else if (authHp - displayHp > 4) displayHp += (authHp - displayHp) * 0.12;
 }
 
 function updateDps() {
@@ -177,6 +168,31 @@ function statsSnapshot() {
   };
 }
 
+// ---------------- 他プレイヤーのダメージ(broadcast の速い経路) ----------------
+function onLiveDamage(p) {
+  if (!p || p.b !== boss.index) return;
+  const d = Math.max(0, p.d | 0);
+  if (d <= 0) return;
+  displayHp = Math.max(0, displayHp - d);
+  dpsSamples.push({ drop: d, t: performance.now() });
+  flashOthers(d);
+  maybeForceReconcile();
+}
+
+// displayHp が 0 になったら、間隔を待たずに確定値を取りに行く(撃破を素早く反映)
+async function forcePoll() {
+  const { data } = await fetchState();
+  if (data) handleServerRow(data);
+}
+function maybeForceReconcile() {
+  if (displayHp > 0 || !backendOk) return;
+  const t = performance.now();
+  if (t - lastForce < 600) return;
+  lastForce = t;
+  if (pendingDmg > 0 && inFlight === 0) flush();
+  else forcePoll();
+}
+
 // ---------------- 他プレイヤーのタップ ----------------
 function showRemoteTap(nx, ny) {
   if (PREFS.lowStim) return;
@@ -193,11 +209,11 @@ function showRemoteTap(nx, ny) {
 let othersTimer = 0;
 function flashOthers(amount) {
   const n = performance.now();
-  if (n - othersTimer < 350) return;
+  if (n - othersTimer < 140) return;
   othersTimer = n;
   const r = el.bossEmoji.getBoundingClientRect();
-  popDamage(r.left + r.width / 2, r.top + r.height * 0.35, '-' + fmt(amount), 'others');
-  shake(3);
+  popDamage(r.left + r.width / 2, r.top + r.height * (0.28 + Math.random() * 0.3), '-' + fmt(amount), 'others');
+  shake(2.5);
 }
 
 function onBossDefeated(newIndex, newHp) {
@@ -219,11 +235,11 @@ function onBossDefeated(newIndex, newHp) {
   );
 
   boss = bossFor(newIndex);
-  serverHp = newHp ?? boss.maxHp;
+  authHp = newHp ?? boss.maxHp;
+  displayHp = authHp;
   shownHp = boss.maxHp;
   pendingDmg = 0;
   myBossDamage = 0;
-  lastRowHp = newHp;
   dpsSamples = [];
   LS.curIndex = boss.index;
   LS.curDmg = 0;
@@ -261,12 +277,16 @@ function hit(ev) {
   const dmg = weak ? 2 : 1;
 
   pendingDmg += dmg;
+  displayHp = Math.max(0, displayHp - dmg);   // 自分の攻撃は即反映
   myBossDamage += dmg;
   sessionDmg += dmg;
+  dpsSamples.push({ drop: dmg, t: performance.now() });
   LS.total = LS.total + 1;
   LS.dmgTotal = LS.dmgTotal + dmg;
   LS.curDmg = myBossDamage;
   if (weak) LS.weakHits = LS.weakHits + 1;
+
+  if (live) live.reportDamage(dmg, boss.index);   // 他プレイヤーへ即共有
 
   const pct = boss.maxHp > 0 ? (myBossDamage / boss.maxHp) * 100 : 0;
   if (pct > LS.bestPct) LS.bestPct = +pct.toFixed(3);
@@ -288,7 +308,8 @@ function hit(ev) {
   if (now - lastSnd > 40) { playHit(); lastSnd = now; }
   shake(weak ? 6 : 2.4);
   bumpBoss(weak ? 0.82 : 0.9);
-  if (taps) taps.send(+nx.toFixed(3), +ny.toFixed(3));
+  if (pointer && live) live.sendTap(+nx.toFixed(3), +ny.toFixed(3));
+  if (displayHp <= 0) maybeForceReconcile();
 }
 
 let bumpT = 0;
@@ -312,13 +333,10 @@ async function flush() {
     scheduleReconnect();
     return;
   }
-  const mine = inFlight;
   inFlight = 0;
-  justFlushed += mine;
   handleServerRow(data);
 }
 
-let justFlushed = 0;
 let reconnectTimer = null;
 function scheduleReconnect() {
   if (reconnectTimer) return;
@@ -337,11 +355,11 @@ function scheduleReconnect() {
 function applyInitialState(data) {
   const changed = data.boss_index !== boss.index;
   boss = bossFor(data.boss_index);
-  serverHp = data.hp;
+  authHp = data.hp;
+  displayHp = data.hp;
   shownHp = data.hp;
   defeatedCount = data.defeated_count;
   peakPlayers = Math.max(peakPlayers, data.peak_players || 0);
-  lastRowHp = data.hp;
   if (LS.curIndex === boss.index && !changed) myBossDamage = LS.curDmg;
   else { myBossDamage = 0; LS.curIndex = boss.index; LS.curDmg = 0; }
   paintBoss();
@@ -416,9 +434,14 @@ async function boot() {
 
   subscribeState((row) => { backendOk = true; handleServerRow(row); });
   joinPresence((n) => { playersLive = n; el.players.textContent = fmt(n); });
-  taps = joinTaps({ onTap: (p) => showRemoteTap(p.x, p.y) });
+  live = joinLive({
+    onDamage: onLiveDamage,
+    onTap: (p) => showRemoteTap(p.x, p.y),
+  });
 
   setInterval(flush, FLUSH_INTERVAL);
+  // 表示HPが 0 付近で止まっていたら確定値を取りに行く保険
+  setInterval(() => { if (ready && displayHp <= 0) maybeForceReconcile(); }, 500);
   window.addEventListener('beforeunload', flush);
 
   registerSW();
@@ -496,5 +519,11 @@ function registerSW() {
     });
   }).catch(() => {});
 }
+
+// 読み取り専用のデバッグ用フック(同期状態の確認に使う。害はない)
+window.__br = () => ({
+  bossIndex: boss.index, authHp, displayHp, shownHp,
+  pendingDmg, inFlight, myBossDamage, playersLive, peakPlayers, backendOk,
+});
 
 boot();
