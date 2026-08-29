@@ -40,5 +40,10 @@ export const VERSION_HISTORY = [
     date: '2026-08-29',
     notes: 'v1.3.x以前からの累計クリック数を「累計ダメージ」に引き継ぐように修正(称号がずっと最低位のままだった問題)。称号の必要ダメージを全体的に下げて上がりやすく調整。',
   },
+  {
+    version: '1.4.2',
+    date: '2026-08-29',
+    notes: 'v1.4.1の引き継ぎが「v1.4.0で一度でもクリック済みだと発動しない」不具合だったのを修正。累計ダメージが累計クリック数より少なければクリック数まで引き上げる(1回だけ)。',
+  },
 ];
 export const CURRENT_VERSION = VERSION_HISTORY[VERSION_HISTORY.length - 1].version;

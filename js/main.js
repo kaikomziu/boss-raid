@@ -351,11 +351,13 @@ async function boot() {
   cacheDom();
   loadPrefs();
 
-  // v1.4.0 移行: 累計ダメージが未記録なら、それまでの累計クリック数を引き継ぐ
-  // (v1.3.x 以前は1クリック=1ダメージだったため)
-  if (localStorage.getItem('bossraid_dmgTotal') === null && LS.total > 0) {
+  // v1.4.x 移行: 累計ダメージ < 累計クリック数なら、クリック数まで引き上げる。
+  // (v1.3.x 以前は 1クリック=1ダメージ。累計ダメージは v1.4.0 新設のため取り残されていた)
+  // 一度だけ実行。すでに v1.4.0 で少しクリック済みでも取りこぼさない。
+  if (!localStorage.getItem('bossraid_mig_dmg') && LS.total > LS.dmgTotal) {
     LS.dmgTotal = LS.total;
   }
+  localStorage.setItem('bossraid_mig_dmg', '1');
   initCanvas(el.fxCanvas);
   initPopLayer(el.popLayer);
   initShake(el.shakeWrap);
