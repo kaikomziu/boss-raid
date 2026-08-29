@@ -1,32 +1,33 @@
 // ペット要素。クリック(ボスへのダメージ)とは完全に独立。
-// 実時間経過 + なでる/ごはん でなかよし度が上がり、5段階に成長する。
-// セーブは localStorage の bossraid_pet / bossraid_petdex。
+import { t, onLangChange } from './i18n.js';
 
 const KEY = 'bossraid_pet';
 const DEX = 'bossraid_petdex';
 
 const SPECIES = [
-  { id: 'dog',    name: 'いぬ',     stages: ['🥚', '🐶', '🐕', '🦮', '🐺'] },
-  { id: 'cat',    name: 'ねこ',     stages: ['🥚', '🐱', '🐈', '🐈‍⬛', '🦁'] },
-  { id: 'bird',   name: 'とり',     stages: ['🥚', '🐤', '🐦', '🦅', '🦉'] },
-  { id: 'dragon', name: 'りゅう',   stages: ['🥚', '🦎', '🐊', '🐉', '🐲'] },
-  { id: 'slime',  name: 'スライム', stages: ['🥚', '🫧', '🟩', '🟢', '👾'] },
-  { id: 'rabbit', name: 'うさぎ',   stages: ['🥚', '🐰', '🐇', '🌝', '🦄'] },
-  { id: 'fox',    name: 'きつね',   stages: ['🥚', '🦊', '🦝', '🐺', '🌟'] },
-  { id: 'panda',  name: 'パンダ',   stages: ['🥚', '🐼', '🐻', '🐻‍❄️', '👑'] },
-  { id: 'penguin',name: 'ペンギン', stages: ['🥚', '🐧', '🐧', '🦤', '❄️'] },
-  { id: 'ghost',  name: 'おばけ',   stages: ['🥚', '👻', '👻', '🎃', '💀'] },
+  { id: 'dog',    stages: ['🥚', '🐶', '🐕', '🦮', '🐺'] },
+  { id: 'cat',    stages: ['🥚', '🐱', '🐈', '🐈‍⬛', '🦁'] },
+  { id: 'bird',   stages: ['🥚', '🐤', '🐦', '🦅', '🦉'] },
+  { id: 'dragon', stages: ['🥚', '🦎', '🐊', '🐉', '🐲'] },
+  { id: 'slime',  stages: ['🥚', '🫧', '🟩', '🟢', '👾'] },
+  { id: 'rabbit', stages: ['🥚', '🐰', '🐇', '🌝', '🦄'] },
+  { id: 'fox',    stages: ['🥚', '🦊', '🦝', '🐺', '🌟'] },
+  { id: 'panda',  stages: ['🥚', '🐼', '🐻', '🐻‍❄️', '👑'] },
+  { id: 'penguin', stages: ['🥚', '🐧', '🐧', '🦤', '❄️'] },
+  { id: 'ghost',  stages: ['🥚', '👻', '👻', '🎃', '💀'] },
 ];
-const STAGE_NAMES = ['たまご', 'ベビー', 'ジュニア', 'せいたい', 'でんせつ'];
-const STAGE_AFF   = [0, 15, 60, 160, 420];
-
+const STAGE_AFF = [0, 15, 60, 160, 420];
 const ACCS = [
-  { id: '', emoji: '', name: 'なし', need: 0 },
-  { id: 'ribbon', emoji: '🎀', name: 'リボン', need: 1 },
-  { id: 'cap',    emoji: '🧢', name: 'ぼうし', need: 2 },
-  { id: 'glass',  emoji: '🕶️', name: 'サングラス', need: 3 },
-  { id: 'crown',  emoji: '👑', name: 'おうかん', need: 4 },
+  { id: '', emoji: '', need: 0 },
+  { id: 'ribbon', emoji: '🎀', need: 1 },
+  { id: 'cap', emoji: '🧢', need: 2 },
+  { id: 'glass', emoji: '🕶️', need: 3 },
+  { id: 'crown', emoji: '👑', need: 4 },
 ];
+
+const spName = (id) => t('petsp.' + id);
+const stageName = (i) => t('petstage.' + i);
+const accName = (id) => t('petacc.' + (id || 'none'));
 
 let pet = null;
 const els = {};
@@ -45,10 +46,7 @@ function stageIndex(aff) {
 }
 function ageDays() { return Math.floor((Date.now() - pet.born) / 86400000); }
 
-export function petStageNow() {
-  if (!pet) return -1;
-  return stageIndex(pet.affection);
-}
+export function petStageNow() { return pet ? stageIndex(pet.affection) : -1; }
 
 function tick() {
   if (!pet) return;
@@ -77,27 +75,27 @@ function pop(cls) {
 }
 
 function render() {
-  if (!pet) { els.adopt.hidden = false; els.main.hidden = true; els.toggle.textContent = '🥚'; renderDex(); return; }
-  els.adopt.hidden = true;
-  els.main.hidden = false;
+  if (!pet) {
+    els.adopt.hidden = false; els.main.hidden = true;
+    els.toggle.textContent = '🥚';
+    if (els.eggs.children.length !== SPECIES.length) buildEggs();
+    else [...els.eggs.children].forEach((b, i) => { b.querySelector('small').textContent = spName(SPECIES[i].id); });
+    return;
+  }
+  els.adopt.hidden = true; els.main.hidden = false;
 
   const sp = species();
   const prevStage = pet.stage ?? 0;
   const st = stageIndex(pet.affection);
   const emoji = sp.stages[st];
 
-  if (st > prevStage) {
-    pet.stage = st;
-    save();
-    speak('しんかした！✨');
-    pop('hop');
-  }
+  if (st > prevStage) { pet.stage = st; save(); speak(t('pet.evolved')); pop('hop'); }
 
   els.toggle.textContent = emoji;
   els.avatar.textContent = emoji;
-  els.acc.textContent = ACCS.find((a) => a.id === (pet.acc || ''))?.emoji || '';
-  els.stageName.textContent = `${sp.name}・${STAGE_NAMES[st]}`;
-  els.age.textContent = `${ageDays()}日`;
+  els.acc.textContent = (ACCS.find((a) => a.id === (pet.acc || '')) || {}).emoji || '';
+  els.stageName.textContent = t('pet.badge', { species: spName(sp.id), stage: stageName(st) });
+  els.age.textContent = t('pet.age', { n: ageDays() });
   els.name.textContent = pet.name;
 
   const affInStage = pet.affection - STAGE_AFF[st];
@@ -110,8 +108,8 @@ function render() {
   els.hunFill.classList.toggle('warn', hungry);
 
   const feedLeft = 1800000 - (Date.now() - (pet.lastFed || 0));
-  if (feedLeft > 0) { els.feed.disabled = true; els.feed.textContent = `🍖 ${Math.ceil(feedLeft / 60000)}分`; }
-  else { els.feed.disabled = false; els.feed.textContent = '🍖 ごはん'; }
+  if (feedLeft > 0) { els.feed.disabled = true; els.feed.textContent = t('pet.feedWait', { n: Math.ceil(feedLeft / 60000) }); }
+  else { els.feed.disabled = false; els.feed.textContent = t('pet.feed'); }
 
   renderAccPicker(st);
   renderDex();
@@ -124,14 +122,13 @@ function renderAccPicker(st) {
     const locked = st < a.need;
     b.className = 'pet-acc-btn' + (pet.acc === a.id || (!pet.acc && !a.id) ? ' on' : '') + (locked ? ' lock' : '');
     b.textContent = a.id ? a.emoji : '∅';
-    b.title = locked ? `${STAGE_NAMES[a.need]}で解放` : a.name;
+    b.title = locked ? t('petacc.lock', { stage: stageName(a.need) }) : accName(a.id);
     if (!locked) b.addEventListener('click', () => { pet.acc = a.id; save(); render(); });
     els.accRow.appendChild(b);
   }
 }
 function renderDex() {
-  const s = dexSet();
-  els.dex.textContent = `ずかん ${s.size}/${SPECIES.length}種`;
+  els.dex.textContent = t('pet.dex', { n: dexSet().size, max: SPECIES.length });
 }
 
 function doPet() {
@@ -142,7 +139,7 @@ function doPet() {
   pet.affection += pet.hunger > 75 ? 0.4 : 1.6;
   save();
   pop('wiggle');
-  speak(['なでなで♪', 'うれしい！', 'もっと！', 'ふふっ'][Math.floor(Math.random() * 4)]);
+  speak(t('pet.stroke' + (1 + Math.floor(Math.random() * 4))));
   render();
 }
 
@@ -155,27 +152,27 @@ function doFeed() {
   pet.affection += 9;
   save();
   pop('hop');
-  speak('もぐもぐ…おいしい！');
+  speak(t('pet.eat'));
   render();
 }
 
 function rename() {
   if (!pet) return;
-  const n = prompt('ペットのなまえ', pet.name);
+  const n = prompt(t('pet.renamePrompt'), pet.name);
   if (n && n.trim()) { pet.name = n.trim().slice(0, 12); save(); render(); }
 }
 
 function adopt(id) {
   const now = Date.now();
   pet = {
-    species: id, name: SPECIES.find((s) => s.id === id).name,
+    species: id, name: spName(id),
     born: now, affection: 0, hunger: 8, acc: '',
     lastFed: 0, lastPet: 0, lastTick: now, stage: 0,
   };
   dexAdd(id);
   save();
   render();
-  speak('よろしくね！');
+  speak(t('pet.hello'));
   pop('hop');
 }
 
@@ -186,8 +183,19 @@ export function petCelebrate() {
   pet.affection += 4;
   save();
   pop('hop');
-  speak('やったー！🎉');
+  speak(t('pet.cheer'));
   render();
+}
+
+function buildEggs() {
+  els.eggs.innerHTML = '';
+  for (const s of SPECIES) {
+    const b = document.createElement('button');
+    b.className = 'pet-egg';
+    b.innerHTML = `<span>🥚</span><small>${spName(s.id)}</small>`;
+    b.addEventListener('click', () => adopt(s.id));
+    els.eggs.appendChild(b);
+  }
 }
 
 export function initPet() {
@@ -200,15 +208,7 @@ export function initPet() {
     ['petBtn', 'petPet'], ['feed', 'petFeed'], ['widget', 'petWidget'],
   ].forEach(([k, id]) => { els[k] = document.getElementById(id); });
 
-  els.eggs.innerHTML = '';
-  for (const s of SPECIES) {
-    const b = document.createElement('button');
-    b.className = 'pet-egg';
-    b.innerHTML = `<span>🥚</span><small>${s.name}</small>`;
-    b.addEventListener('click', () => adopt(s.id));
-    els.eggs.appendChild(b);
-  }
-
+  buildEggs();
   els.toggle.addEventListener('click', () => els.widget.classList.toggle('collapsed'));
   els.avatar.addEventListener('click', doPet);
   els.petBtn.addEventListener('click', doPet);
@@ -219,4 +219,5 @@ export function initPet() {
   tick();
   render();
   setInterval(tick, 15000);
+  onLangChange(() => { buildEggs(); render(); });
 }

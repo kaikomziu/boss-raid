@@ -66,32 +66,27 @@
   <header id="topbar">
     <h1 class="logo">👹 BOSS RAID</h1>
     <div class="topbtns">
-      <button id="skinBtn" class="ghost">🎨 スキン</button>
-      <button id="settingsBtn" class="ghost">⚙ 設定</button>
-      <button id="recordsBtn" class="ghost">📖 きろく</button>
-      <button id="keybindBtn" class="ghost">⌨ キー設定</button>
+      <button id="skinBtn" class="ghost">🎨 <span data-i18n="nav.skins">スキン</span></button>
+      <button id="settingsBtn" class="ghost">⚙ <span data-i18n="nav.settings">設定</span></button>
+      <button id="recordsBtn" class="ghost">📖 <span data-i18n="nav.records">きろく</span></button>
+      <button id="keybindBtn" class="ghost">⌨ <span data-i18n="nav.keys">キー設定</span></button>
       <button id="muteBtn" class="ghost">🔊 音 ON</button>
-      <button id="infoBtn" class="ghost">❔ 遊び方</button>
+      <button id="infoBtn" class="ghost">❔ <span data-i18n="nav.help">遊び方</span></button>
     </div>
   </header>
 
-  <div id="presenceRow">
-    <span class="pulse"></span>今 <b id="players">–</b> 人が戦っている ／ 討伐 <b id="killCount">0</b> ／ DPS <b id="dps">0 /秒</b> ／ 最高 <b id="peak">0</b>人
-  </div>
+  <div id="presenceRow"><span class="pulse"></span><span id="hudLine"></span></div>
 
-  <div id="setupBanner" class="setup">
-    ⚙️ Supabase の <code>boss_raid_state</code> テーブルがまだ作成されていません。<br>
-    SQL を実行するとリアルタイム協力が有効になります(それまではローカル表示のみ)。
-  </div>
+  <div id="setupBanner" class="setup" data-i18n="setup.msg" data-i18n-html></div>
 
   <main id="stage">
     <div id="shakeWrap">
       <div id="bossNo" class="boss-no">BOSS #1</div>
-      <div class="boss-name"><span id="bossNameText">スライム大王</span><span id="bossNick" class="boss-nick" hidden>あだ名</span></div>
+      <div class="boss-name"><span id="bossNameText">スライム大王</span><span id="bossNick" class="boss-nick" hidden></span></div>
 
       <div id="clickArea">
         <div id="bossEmoji" class="boss-emoji">👹</div>
-        <div id="weakMarker" class="weak-marker"><span class="weak-kbd">⌨ 会心</span></div>
+        <div id="weakMarker" class="weak-marker"><span class="weak-kbd" data-i18n="stage.weakKbd">⌨</span></div>
         <div id="bossSpeech" class="boss-speech"></div>
         <div class="boss-shadow"></div>
       </div>
@@ -100,55 +95,53 @@
 
       <div id="hpWrap">
         <div class="hp-readout"><span id="hpText">100,000,000</span></div>
-        <div id="hpApprox">約 1.0億 / 1.0億</div>
+        <div id="hpApprox"></div>
         <div id="hpBar"><div id="hpFill"></div><span id="hpPct">100.0%</span></div>
       </div>
 
-      <p class="hint">画面をクリック / タップ、スペースキーでも殴れる ／ 光る<b>弱点</b>はダメージ2倍（キーボードは弱点の出現中に殴れば自動で会心）</p>
+      <p class="hint" data-i18n="stage.hint" data-i18n-html></p>
     </div>
   </main>
 
   <footer id="contrib">
     <div class="card">
-      <div class="card-label">称号 ／ 累計クリック</div>
+      <div class="card-label" data-i18n="contrib.titleClicks">称号 ／ 累計クリック</div>
       <div class="card-value" id="myTotal">0</div>
       <div class="card-sub" id="myTitle">村人</div>
     </div>
     <div class="card">
-      <div class="card-label">このボスへのダメージ</div>
+      <div class="card-label" data-i18n="contrib.bossDmg">このボスへのダメージ</div>
       <div class="card-value" id="myDmg">0</div>
-      <div class="card-sub">全体の <span id="myDmgPct">0%</span></div>
+      <div class="card-sub" id="myDmgWrap"></div>
     </div>
   </footer>
 
-  <a class="more-games" href="https://kaikomziu.github.io/game-links/" target="_blank" rel="noopener">
-    🎮 作者の他のゲームで遊ぶ →
-  </a>
+  <a class="more-games" href="https://kaikomziu.github.io/game-links/" target="_blank" rel="noopener" data-i18n="nav.moreGames">🎮 →</a>
 </div>
 
 <div id="petWidget" class="collapsed">
-  <button id="petToggle" aria-label="ペット">🥚</button>
+  <button id="petToggle" aria-label="pet">🥚</button>
   <div id="petPanel">
     <div id="petAdopt" hidden>
-      <p class="pet-adopt-h">タマゴをえらんでね</p>
+      <p class="pet-adopt-h" data-i18n="pet.chooseEgg">タマゴをえらんでね</p>
       <div id="petEggs"></div>
     </div>
     <div id="petMain" hidden>
-      <div class="pet-badge"><span id="petStageName">たまご</span> ・ <span id="petAge">0日</span></div>
+      <div class="pet-badge"><span id="petStageName"></span> · <span id="petAge"></span></div>
       <div class="pet-avatar-wrap">
         <div id="petAvatar">🥚</div>
         <span id="petAcc" class="pet-acc"></span>
       </div>
       <div id="petSpeech"></div>
-      <button id="petName" class="pet-name">なまえ</button>
-      <div class="pet-stat"><label>なかよし</label><div class="pet-bar"><div id="petAffFill"></div></div></div>
-      <div class="pet-stat"><label>おなか</label><div class="pet-bar"><div id="petHunFill"></div></div></div>
+      <button id="petName" class="pet-name" data-i18n="pet.name">なまえ</button>
+      <div class="pet-stat"><label data-i18n="pet.affection">なかよし</label><div class="pet-bar"><div id="petAffFill"></div></div></div>
+      <div class="pet-stat"><label data-i18n="pet.hunger">おなか</label><div class="pet-bar"><div id="petHunFill"></div></div></div>
       <div id="petAccRow" class="pet-acc-row"></div>
       <div class="pet-actions">
-        <button id="petPet">🖐 なでる</button>
+        <button id="petPet" data-i18n="pet.strokeBtn">🖐 なでる</button>
         <button id="petFeed">🍖 ごはん</button>
       </div>
-      <div class="pet-foot"><span id="petDex">ずかん 0/10種</span><span class="pet-note">ダメージには影響しません</span></div>
+      <div class="pet-foot"><span id="petDex"></span><span class="pet-note" data-i18n="pet.note">—</span></div>
     </div>
   </div>
 </div>
@@ -160,8 +153,8 @@
 <div id="skinPanel">
   <div class="panel">
     <div class="panel-head">
-      <span>🎨 スキン</span>
-      <button id="skinClose" class="ghost">✕ 閉じる</button>
+      <span>🎨 <span data-i18n="nav.skins">スキン</span></span>
+      <button id="skinClose" class="ghost" data-i18n="common.close">✕</button>
     </div>
     <div id="skinGrid"></div>
   </div>
@@ -170,19 +163,20 @@
 <div id="settingsPanel">
   <div class="panel">
     <div class="panel-head">
-      <span>⚙ 設定</span>
-      <button id="settingsClose" class="ghost">✕ 閉じる</button>
+      <span>⚙ <span data-i18n="nav.settings">設定</span></span>
+      <button id="settingsClose" class="ghost" data-i18n="common.close">✕</button>
     </div>
     <div class="set-body">
-      <label class="set-row"><span>攻撃エフェクト</span><select id="setEffect"></select></label>
-      <label class="set-row"><span>クリック音</span><select id="setSound"></select></label>
-      <label class="set-row"><span>ダメージ表示</span><select id="setDmg"></select></label>
-      <label class="set-row set-check"><span>低刺激モード<small>点滅・揺れ・花火を抑える</small></span><input type="checkbox" id="setLowStim"></label>
+      <label class="set-row"><span data-i18n="set.language">言語</span><select id="setLang"></select></label>
+      <label class="set-row"><span data-i18n="set.effect">攻撃エフェクト</span><select id="setEffect"></select></label>
+      <label class="set-row"><span data-i18n="set.sound">クリック音</span><select id="setSound"></select></label>
+      <label class="set-row"><span data-i18n="set.dmgStyle">ダメージ表示</span><select id="setDmg"></select></label>
+      <label class="set-row set-check"><span><span data-i18n="set.lowStim">低刺激モード</span><small data-i18n="set.lowStimNote">—</small></span><input type="checkbox" id="setLowStim"></label>
       <div class="set-nick">
-        <div class="set-nick-h">ボスのあだ名 <small>（<span id="setNickBoss">-</span> ／ 自分の画面だけ）</small></div>
+        <div class="set-nick-h"><span data-i18n="set.nickTitle">ボスのあだ名</span> <small id="setNickNote"></small></div>
         <div class="set-nick-row">
-          <input type="text" id="setNick" maxlength="16" placeholder="あだ名を入力（空で解除）">
-          <button id="setNickSave" class="ghost">保存</button>
+          <input type="text" id="setNick" maxlength="16" data-i18n-ph="set.nickPlaceholder">
+          <button id="setNickSave" class="ghost" data-i18n="common.save">保存</button>
         </div>
       </div>
     </div>
@@ -192,14 +186,14 @@
 <div id="recordsPanel">
   <div class="panel">
     <div class="panel-head">
-      <span>📖 きろく</span>
-      <button id="recordsClose" class="ghost">✕ 閉じる</button>
+      <span>📖 <span data-i18n="nav.records">きろく</span></span>
+      <button id="recordsClose" class="ghost" data-i18n="common.close">✕</button>
     </div>
     <div id="recordsTabs" class="rec-tabs">
-      <button data-tab="ach" class="on">実績</button>
-      <button data-tab="title">称号</button>
-      <button data-tab="codex">討伐図鑑</button>
-      <button data-tab="stats">統計</button>
+      <button data-tab="ach" class="on" data-i18n="rec.tabAch">実績</button>
+      <button data-tab="title" data-i18n="rec.tabTitle">称号</button>
+      <button data-tab="codex" data-i18n="rec.tabCodex">討伐図鑑</button>
+      <button data-tab="stats" data-i18n="rec.tabStats">統計</button>
     </div>
     <div id="recordsBody" class="rec-body"></div>
   </div>
@@ -208,13 +202,13 @@
 <div id="keybindPanel">
   <div class="panel">
     <div class="panel-head">
-      <span>⌨ キー設定</span>
-      <button id="keybindClose" class="ghost">✕ 閉じる</button>
+      <span>⌨ <span data-i18n="nav.keys">キー設定</span></span>
+      <button id="keybindClose" class="ghost" data-i18n="common.close">✕</button>
     </div>
     <div id="keybindList"></div>
     <div class="kb-foot">
-      <button id="keybindReset" class="ghost">デフォルトに戻す</button>
-      <span class="kb-tip">キーの「✕」で解除／複数キー登録OK</span>
+      <button id="keybindReset" class="ghost" data-i18n="common.reset">デフォルトに戻す</button>
+      <span class="kb-tip" data-i18n="kb.tip">—</span>
     </div>
   </div>
 </div>

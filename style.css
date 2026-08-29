@@ -547,6 +547,13 @@ body {
   border: 1px solid var(--border); border-radius: 6px; padding: 1px 5px; vertical-align: middle;
 }
 
+/* 右書き(アラビア語) */
+[dir="rtl"] #petWidget { left: auto; right: 12px; align-items: flex-end; }
+[dir="rtl"] .kb-tip { text-align: left; }
+[dir="rtl"] .set-nick-h small,
+[dir="rtl"] .rec-ach .ra-t small { direction: rtl; }
+[dir="rtl"] .hp-line, [dir="rtl"] .rec-stat { direction: rtl; }
+
 @media (max-width: 440px) {
   .logo { font-size: 16px; }
   .ghost { padding: 5px 8px; font-size: 10.5px; }

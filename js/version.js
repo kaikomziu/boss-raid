@@ -70,5 +70,10 @@ export const VERSION_HISTORY = [
     date: '2026-08-29',
     notes: '画面下部に「🎮 作者の他のゲームで遊ぶ」ボタンを追加(MY GAMES LINKS へ新しいタブで移動)。',
   },
+  {
+    version: '1.7.0',
+    date: '2026-08-30',
+    notes: '多言語対応。16言語(日本語/英語/簡体字/繁体字/韓国語/スペイン語/ポルトガル語/フランス語/ドイツ語/ロシア語/イタリア語/トルコ語/ポーランド語/ベトナム語/インドネシア語/アラビア語)。UI・実績・称号・ボス名・ボスのセリフ・スキン名・ペットまで翻訳。ブラウザ言語で自動判定、⚙設定で切替、?lang=xxで指定可。数値は各言語の表記(万/億・K/M/B等)。アラビア語は右書き対応。',
+  },
 ];
 export const CURRENT_VERSION = VERSION_HISTORY[VERSION_HISTORY.length - 1].version;

@@ -1,36 +1,34 @@
-// 📖 きろく: 実績(#15) / 称号(#16) / 討伐図鑑(#17) / 統計(#18)
+// 📖 きろく: 実績 / 称号 / 討伐図鑑 / 統計
+import { t, fmtNum, currentLang, onLangChange } from './i18n.js';
+
 const K_ACH = 'bossraid_ach';
 const K_CODEX = 'bossraid_codex';
 
-const TITLES = [
-  [0, '村人'], [500, '見習い'], [5000, '冒険者'], [30000, '戦士'],
-  [150000, '勇者'], [700000, '英雄'], [3000000, '魔王殺し'],
-  [15000000, '伝説'], [80000000, '神話'],
-];
+const TITLE_NEED = [0, 500, 5000, 30000, 150000, 700000, 3000000, 15000000, 80000000];
 
 const ACHIEVEMENTS = [
-  { id: 'first',      name: 'はじめの一撃',   desc: 'ボスを1体撃破',            f: (s) => s.kills >= 1 },
-  { id: 'kill10',     name: '常連ハンター',   desc: 'ボスを10体撃破',           f: (s) => s.kills >= 10 },
-  { id: 'kill50',     name: 'ボスクラッシャー', desc: 'ボスを50体撃破',         f: (s) => s.kills >= 50 },
-  { id: 'kill100',    name: '百戦錬磨',       desc: 'ボスを100体撃破',          f: (s) => s.kills >= 100 },
-  { id: 'kill500',    name: '殲滅者',         desc: 'ボスを500体撃破',          f: (s) => s.kills >= 500 },
-  { id: 'clk1k',      name: 'ウォームアップ', desc: '累計1,000クリック',        f: (s) => s.clicks >= 1000 },
-  { id: 'clk10k',     name: '連打職人',       desc: '累計10,000クリック',       f: (s) => s.clicks >= 10000 },
-  { id: 'clk100k',    name: '指が仕事する',   desc: '累計100,000クリック',      f: (s) => s.clicks >= 100000 },
-  { id: 'clk1m',      name: 'ミリオンフィンガー', desc: '累計1,000,000クリック', f: (s) => s.clicks >= 1000000 },
-  { id: 'dmg1m',      name: '削り役',         desc: '累計100万ダメージ',        f: (s) => s.dmgTotal >= 1000000 },
-  { id: 'dmg10m',     name: '主砲',           desc: '累計1,000万ダメージ',      f: (s) => s.dmgTotal >= 10000000 },
-  { id: 'dmg100m',    name: '一億の一員',     desc: '累計1億ダメージ',          f: (s) => s.dmgTotal >= 100000000 },
-  { id: 'ses1k',      name: '本気の一戦',     desc: '1回の来訪で1,000ダメージ', f: (s) => s.sessionDmg >= 1000 },
-  { id: 'ses10k',     name: '入り浸り',       desc: '1回の来訪で10,000ダメージ', f: (s) => s.sessionDmg >= 10000 },
-  { id: 'weak10',     name: '目ざとい',       desc: '弱点を10回ヒット',          f: (s) => s.weakHits >= 10 },
-  { id: 'weak100',    name: '弱点マスター',   desc: '弱点を100回ヒット',         f: (s) => s.weakHits >= 100 },
-  { id: 'contrib1',   name: '一翼を担う',     desc: '1体のボスに1%以上貢献',     f: (s) => s.bestPct >= 1 },
-  { id: 'contrib5',   name: 'エース',         desc: '1体のボスに5%以上貢献',     f: (s) => s.bestPct >= 5 },
-  { id: 'night',      name: '夜ふかし戦士',   desc: '深夜0〜5時にプレイ',        f: () => { const h = new Date().getHours(); return h >= 0 && h < 5; } },
-  { id: 'petlegend',  name: '名伯楽',         desc: 'ペットをでんせつまで育てる', f: (s) => s.petStage >= 4 },
-  { id: 'skins5',     name: '着せ替え好き',   desc: 'スキンを5種類ためす',        f: (s) => s.skinsSeen >= 5 },
-  { id: 'play1h',     name: '腰を据えて',     desc: '累計プレイ1時間',           f: (s) => s.playSec >= 3600 },
+  { id: 'first',    f: (s) => s.kills >= 1 },
+  { id: 'kill10',   f: (s) => s.kills >= 10 },
+  { id: 'kill50',   f: (s) => s.kills >= 50 },
+  { id: 'kill100',  f: (s) => s.kills >= 100 },
+  { id: 'kill500',  f: (s) => s.kills >= 500 },
+  { id: 'clk1k',    f: (s) => s.clicks >= 1000 },
+  { id: 'clk10k',   f: (s) => s.clicks >= 10000 },
+  { id: 'clk100k',  f: (s) => s.clicks >= 100000 },
+  { id: 'clk1m',    f: (s) => s.clicks >= 1000000 },
+  { id: 'dmg1m',    f: (s) => s.dmgTotal >= 1000000 },
+  { id: 'dmg10m',   f: (s) => s.dmgTotal >= 10000000 },
+  { id: 'dmg100m',  f: (s) => s.dmgTotal >= 100000000 },
+  { id: 'ses1k',    f: (s) => s.sessionDmg >= 1000 },
+  { id: 'ses10k',   f: (s) => s.sessionDmg >= 10000 },
+  { id: 'weak10',   f: (s) => s.weakHits >= 10 },
+  { id: 'weak100',  f: (s) => s.weakHits >= 100 },
+  { id: 'contrib1', f: (s) => s.bestPct >= 1 },
+  { id: 'contrib5', f: (s) => s.bestPct >= 5 },
+  { id: 'night',    f: () => { const h = new Date().getHours(); return h >= 0 && h < 5; } },
+  { id: 'petlegend', f: (s) => s.petStage >= 4 },
+  { id: 'skins5',   f: (s) => s.skinsSeen >= 5 },
+  { id: 'play1h',   f: (s) => s.playSec >= 3600 },
 ];
 
 let unlocked = new Set();
@@ -42,13 +40,17 @@ function loadAch() {
 }
 function saveAch() { localStorage.setItem(K_ACH, JSON.stringify([...unlocked])); }
 
+// dmg → { index, name, nextAt, nextName }
 export function titleFor(dmg) {
-  let cur = TITLES[0], nxt = null;
-  for (let i = 0; i < TITLES.length; i++) {
-    if (dmg >= TITLES[i][0]) cur = TITLES[i];
-    else { nxt = TITLES[i]; break; }
-  }
-  return { name: cur[1], nextAt: nxt ? nxt[0] : null, nextName: nxt ? nxt[1] : null };
+  let idx = 0;
+  for (let i = 0; i < TITLE_NEED.length; i++) if (dmg >= TITLE_NEED[i]) idx = i;
+  const hasNext = idx < TITLE_NEED.length - 1;
+  return {
+    index: idx,
+    name: t('title.' + idx),
+    nextAt: hasNext ? TITLE_NEED[idx + 1] : null,
+    nextName: hasNext ? t('title.' + (idx + 1)) : null,
+  };
 }
 
 export function checkAchievements(snap) {
@@ -61,29 +63,39 @@ export function checkAchievements(snap) {
 }
 
 function toast(a) {
-  const t = document.createElement('div');
-  t.className = 'ach-toast';
-  t.innerHTML = `🏅 <b>実績かいじょ</b><br>${a.name} — <span>${a.desc}</span>`;
-  document.body.appendChild(t);
-  requestAnimationFrame(() => t.classList.add('show'));
-  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3800);
+  const el = document.createElement('div');
+  el.className = 'ach-toast';
+  el.innerHTML = t('ach.toast', { name: t('a.' + a.id + '.n'), desc: t('a.' + a.id + '.d') });
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 3800);
 }
 
-// ---- 討伐図鑑 ----
+// ---- 討伐図鑑 (creatureId等を保存し、表示時に現在言語で組み立てる) ----
 export function recordDefeat(entry) {
   let list = [];
   try { list = JSON.parse(localStorage.getItem(K_CODEX)) || []; } catch (_) {}
-  list.unshift({ i: entry.index, n: entry.name, t: Date.now(), d: Math.round(entry.myDmg), p: entry.myMax > 0 ? entry.myDmg / entry.myMax * 100 : 0 });
+  list.unshift({
+    i: entry.index, t: Date.now(),
+    d: Math.round(entry.myDmg),
+    p: entry.myMax > 0 ? entry.myDmg / entry.myMax * 100 : 0,
+    nm: entry.name || '',              // 旧データ/あだ名フォールバック
+    sl: !!entry.slime, px: entry.prefixIdx, cr: entry.creatureId,
+  });
   if (list.length > 150) list.length = 150;
   localStorage.setItem(K_CODEX, JSON.stringify(list));
 }
 function codexList() {
   try { return JSON.parse(localStorage.getItem(K_CODEX)) || []; } catch (_) { return []; }
 }
+function codexName(e) {
+  if (e.nm) return e.nm;
+  if (e.sl) return t('boss.slime');
+  if (e.cr != null) return t('boss.format', { prefix: t('bp.' + e.px), creature: t('bc.' + e.cr) });
+  return '#' + (e.i + 1);
+}
 
 // ---- パネル ----
-const fmt = (n) => Math.max(0, Math.floor(n)).toLocaleString('en-US');
-
 export function initRecords(c) {
   cfg = c || {};
   loadAch();
@@ -96,62 +108,72 @@ export function initRecords(c) {
   document.getElementById('recordsClose').addEventListener('click', () => els.panel.classList.remove('show'));
   els.panel.addEventListener('click', (e) => { if (e.target === els.panel) els.panel.classList.remove('show'); });
   els.tabs.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => openTab(b.dataset.tab)));
+
+  onLangChange(() => { if (els.panel.classList.contains('show')) openTab(activeTab); });
 }
 
+let activeTab = 'ach';
 function openTab(name) {
+  activeTab = name;
   els.tabs.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.tab === name));
   const s = cfg.getStats();
-  if (name === 'ach') renderAch(s);
+  if (name === 'ach') renderAch();
   else if (name === 'title') renderTitle(s);
   else if (name === 'codex') renderCodex();
   else renderStats(s);
 }
 
-function renderAch(s) {
+function renderAch() {
   const rows = ACHIEVEMENTS.map((a) => {
     const got = unlocked.has(a.id);
-    return `<div class="rec-ach ${got ? 'got' : ''}"><span class="ra-i">${got ? '🏅' : '🔒'}</span>
-      <span class="ra-t"><b>${a.name}</b><small>${a.desc}</small></span></div>`;
+    return `<div class="rec-ach ${got ? 'got' : ''}"><span class="ra-i">${got ? '🏅' : '🔒'}</span>` +
+      `<span class="ra-t"><b>${t('a.' + a.id + '.n')}</b><small>${t('a.' + a.id + '.d')}</small></span></div>`;
   }).join('');
-  els.body.innerHTML = `<div class="rec-count">${unlocked.size} / ${ACHIEVEMENTS.length}</div>${rows}`;
+  els.body.innerHTML = `<div class="rec-count">${t('rec.count', { got: unlocked.size, total: ACHIEVEMENTS.length })}</div>${rows}`;
 }
 
 function renderTitle(s) {
-  const t = titleFor(s.dmgTotal);
-  const rows = TITLES.map(([need, name]) => {
+  const cur = titleFor(s.dmgTotal);
+  const rows = TITLE_NEED.map((need, i) => {
     const got = s.dmgTotal >= need;
-    return `<div class="rec-title ${got ? 'got' : ''} ${name === t.name ? 'cur' : ''}">
-      <b>${name}</b><small>累計 ${fmt(need)} ダメージ ${name === t.name ? '（いまここ）' : ''}</small></div>`;
+    const here = i === cur.index;
+    return `<div class="rec-title ${got ? 'got' : ''} ${here ? 'cur' : ''}">` +
+      `<b>${t('title.' + i)}</b><small>${t('rec.titleNeed', { n: fmtNum(need) })} ${here ? t('rec.here') : ''}</small></div>`;
   }).join('');
-  const prog = t.nextAt
-    ? `<div class="rec-next">次「${t.nextName}」まで あと ${fmt(t.nextAt - s.dmgTotal)}</div>` : '<div class="rec-next">最高位に到達！</div>';
-  els.body.innerHTML = `<div class="rec-cur-title">現在の称号<br><b>${t.name}</b></div>${prog}${rows}`;
+  const prog = cur.nextAt
+    ? `<div class="rec-next">${t('rec.nextTitle', { name: cur.nextName, n: fmtNum(cur.nextAt - s.dmgTotal) })}</div>`
+    : `<div class="rec-next">${t('rec.maxTitle')}</div>`;
+  els.body.innerHTML = `<div class="rec-cur-title">${t('rec.curTitle')}<br><b>${cur.name}</b></div>${prog}${rows}`;
 }
 
 function renderCodex() {
   const list = codexList();
-  if (!list.length) { els.body.innerHTML = '<p class="rec-empty">まだ討伐記録がありません</p>'; return; }
+  if (!list.length) { els.body.innerHTML = `<p class="rec-empty">${t('rec.codexEmpty')}</p>`; return; }
+  const loc = currentLang();
   els.body.innerHTML = list.map((e) => {
     const d = new Date(e.t);
-    const dt = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-    return `<div class="rec-codex"><span class="rc-no">#${e.i + 1}</span>
-      <span class="rc-mid"><b>${e.n}</b><small>${dt}</small></span>
-      <span class="rc-dmg">${fmt(e.d)}<small>${e.p < 0.01 && e.p > 0 ? '<0.01' : e.p.toFixed(2)}%</small></span></div>`;
+    let dt;
+    try { dt = new Intl.DateTimeFormat(loc, { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(d); }
+    catch (_) { dt = `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${d.getMinutes()}`; }
+    const pct = e.p < 0.01 && e.p > 0 ? '<0.01' : e.p.toFixed(2);
+    return `<div class="rec-codex"><span class="rc-no">#${e.i + 1}</span>` +
+      `<span class="rc-mid"><b>${codexName(e)}</b><small>${dt}</small></span>` +
+      `<span class="rc-dmg">${fmtNum(e.d)}<small>${pct}%</small></span></div>`;
   }).join('');
 }
 
 function renderStats(s) {
-  const t = titleFor(s.dmgTotal);
+  const cur = titleFor(s.dmgTotal);
   const hrs = Math.floor(s.playSec / 3600), min = Math.floor((s.playSec % 3600) / 60);
   const rows = [
-    ['称号', t.name],
-    ['累計クリック', fmt(s.clicks)],
-    ['累計ダメージ', fmt(s.dmgTotal)],
-    ['参加した討伐', fmt(s.kills) + ' 体'],
-    ['最高DPS', fmt(s.bestDps) + ' /秒'],
-    ['弱点ヒット', fmt(s.weakHits) + ' 回'],
-    ['最大貢献率', (s.bestPct || 0).toFixed(2) + ' %'],
-    ['プレイ時間', `${hrs}時間 ${min}分`],
+    [t('stat.title'), cur.name],
+    [t('stat.clicks'), fmtNum(s.clicks)],
+    [t('stat.dmg'), fmtNum(s.dmgTotal)],
+    [t('stat.kills'), t('stat.killsUnit', { n: fmtNum(s.kills) })],
+    [t('stat.dps'), t('stat.dpsUnit', { n: fmtNum(s.bestDps) })],
+    [t('stat.weak'), t('stat.weakUnit', { n: fmtNum(s.weakHits) })],
+    [t('stat.bestPct'), (s.bestPct || 0).toFixed(2) + ' %'],
+    [t('stat.playtime'), t('stat.playtimeVal', { h: hrs, m: min })],
   ];
   els.body.innerHTML = rows.map(([k, v]) => `<div class="rec-stat"><span>${k}</span><b>${v}</b></div>`).join('');
 }

@@ -2,18 +2,17 @@
 //  #1 HP帯でダメージ表現   #2 撃破シーケンス   #3 登場アニメ
 //  #5 弱点部位(当たると2倍)  #28 ボスのセリフ
 import { PREFS } from './prefs.js';
+import { t } from './i18n.js';
 
 const els = {};
-let curName = '';
 let saidMilestone = -1;
 let idleTimer = null;
 
-const LINES = {
-  intro: ['よくぞ来たな…', 'ほう、挑む気か', '返り討ちにしてくれる', 'この地は通さん'],
-  idle:  ['まだまだ！', '効かぬなァ', 'その程度か？', 'もっと来い', 'ぬるいわ', 'くらえ！'],
-  m50:   ['やるではないか…', 'ぐ…本気を出すか', 'ここからが本番だ'],
-  m20:   ['ばかな、この私が…', 'うぬぬ…！', 'まだ倒れぬ！'],
-};
+const LINE_COUNT = { intro: 4, idle: 6, m50: 3, m20: 3 };
+function line(cat) {
+  const n = Math.floor(Math.random() * LINE_COUNT[cat]);
+  return t('bl.' + cat + '.' + n);
+}
 
 export function initBossFx(refs) {
   Object.assign(els, refs); // { area, emoji, wrap, marker, speech, intro }
@@ -31,7 +30,7 @@ export function updateBossVisual(pct) {
   const ms = pct <= 20 ? 20 : pct <= 50 ? 50 : 100;
   if (ms < 100 && saidMilestone !== ms) {
     saidMilestone = ms;
-    say(ms === 20 ? pick(LINES.m20) : pick(LINES.m50));
+    say(line(ms === 20 ? 'm20' : 'm50'));
   }
 }
 
@@ -91,7 +90,6 @@ function burstMarker() {
 
 // ---- #3 登場 ----
 export function bossIntro(name, emoji, no) {
-  curName = name;
   saidMilestone = -1;
   if (PREFS.lowStim) return;
   els.intro.innerHTML =
@@ -100,7 +98,7 @@ export function bossIntro(name, emoji, no) {
   void els.intro.offsetWidth;
   els.intro.classList.add('play');
   setTimeout(() => els.intro.classList.remove('play'), 1400);
-  setTimeout(() => say(pick(LINES.intro)), 900);
+  setTimeout(() => say(line('intro')), 900);
 }
 
 // ---- #2 撃破 ----
@@ -129,8 +127,7 @@ function say(text) {
 function scheduleIdleLine() {
   clearTimeout(idleTimer);
   idleTimer = setTimeout(() => {
-    if (!document.hidden && Math.random() < 0.7) say(pick(LINES.idle));
+    if (!document.hidden && Math.random() < 0.7) say(line('idle'));
     scheduleIdleLine();
   }, 22000 + Math.random() * 20000);
 }
-function pick(a) { return a[Math.floor(Math.random() * a.length)]; }

@@ -1,23 +1,16 @@
-// ⚙ その他設定パネル: 攻撃エフェクト / クリック音 / ダメージ表示 / あだ名 / 低刺激モード
+// ⚙ 設定パネル: 言語 / 攻撃エフェクト / クリック音 / ダメージ表示 / あだ名 / 低刺激モード
 import { PREFS, savePrefs } from './prefs.js';
+import { t, LANGS, currentLang, setLang, onLangChange } from './i18n.js';
 
-const EFFECTS = [
-  ['slash', '斬撃'], ['fire', '炎'], ['punch', 'パンチ'],
-  ['laser', 'レーザー'], ['cat', '猫パンチ'], ['none', 'なし'],
-];
-const SOUNDS = [
-  ['poko', 'ポコ'], ['sword', '剣'], ['punch', 'パンチ'],
-  ['beam', 'ビーム'], ['animal', 'どうぶつ'], ['none', 'なし'],
-];
-const DMG_STYLES = [
-  ['pop', 'ポップ'], ['simple', 'シンプル'], ['mini', 'ミニマル'], ['gothic', 'ゴシック'],
-];
+const EFFECTS = ['slash', 'fire', 'punch', 'laser', 'cat', 'none'];
+const SOUNDS = ['poko', 'sword', 'punch', 'beam', 'animal', 'none'];
+const DMG_STYLES = ['pop', 'simple', 'mini', 'gothic'];
 
 let cfg = {};
 const els = {};
 
-function fillSelect(sel, pairs, val) {
-  sel.innerHTML = pairs.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+function fillSelect(sel, values, prefix, val) {
+  sel.innerHTML = values.map((v) => `<option value="${v}">${t(prefix + '.' + v)}</option>`).join('');
   sel.value = val;
 }
 
@@ -25,18 +18,21 @@ export function initSettings(c) {
   cfg = c || {};
   els.btn = document.getElementById('settingsBtn');
   els.panel = document.getElementById('settingsPanel');
+  els.lang = document.getElementById('setLang');
   els.effect = document.getElementById('setEffect');
   els.sound = document.getElementById('setSound');
   els.dmg = document.getElementById('setDmg');
   els.low = document.getElementById('setLowStim');
   els.nick = document.getElementById('setNick');
   els.nickSave = document.getElementById('setNickSave');
-  els.nickBoss = document.getElementById('setNickBoss');
+  els.nickNote = document.getElementById('setNickNote');
 
-  fillSelect(els.effect, EFFECTS, PREFS.effect);
-  fillSelect(els.sound, SOUNDS, PREFS.sound);
-  fillSelect(els.dmg, DMG_STYLES, PREFS.dmgStyle);
+  els.lang.innerHTML = LANGS.map((l) => `<option value="${l.code}">${l.name}</option>`).join('');
+  els.lang.value = currentLang();
+  els.lang.addEventListener('change', () => setLang(els.lang.value));
+
   els.low.checked = PREFS.lowStim;
+  rebuildSelects();
 
   const commit = () => { savePrefs(); cfg.onChange && cfg.onChange(); };
   els.effect.addEventListener('change', () => { PREFS.effect = els.effect.value; commit(); });
@@ -45,19 +41,25 @@ export function initSettings(c) {
   els.low.addEventListener('change', () => { PREFS.lowStim = els.low.checked; commit(); });
 
   els.nickSave.addEventListener('click', () => {
-    const idx = cfg.nick.currentIndex();
-    const v = els.nick.value.trim().slice(0, 16);
-    cfg.nick.set(idx, v);
+    cfg.nick.set(cfg.nick.currentIndex(), els.nick.value.trim().slice(0, 16));
     cfg.onChange && cfg.onChange();
   });
 
   els.btn.addEventListener('click', () => { refreshNick(); els.panel.classList.add('show'); });
   document.getElementById('settingsClose').addEventListener('click', () => els.panel.classList.remove('show'));
   els.panel.addEventListener('click', (e) => { if (e.target === els.panel) els.panel.classList.remove('show'); });
+
+  onLangChange(() => { els.lang.value = currentLang(); rebuildSelects(); if (els.panel.classList.contains('show')) refreshNick(); });
+}
+
+function rebuildSelects() {
+  fillSelect(els.effect, EFFECTS, 'effect', PREFS.effect);
+  fillSelect(els.sound, SOUNDS, 'sound', PREFS.sound);
+  fillSelect(els.dmg, DMG_STYLES, 'dmgst', PREFS.dmgStyle);
 }
 
 function refreshNick() {
   const idx = cfg.nick.currentIndex();
-  els.nickBoss.textContent = cfg.nick.realName(idx);
+  els.nickNote.textContent = t('set.nickNote', { name: cfg.nick.realName(idx) });
   els.nick.value = cfg.nick.get(idx) || '';
 }

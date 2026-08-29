@@ -1,11 +1,13 @@
 // BOSS RAID service worker — アプリシェルをキャッシュしてオフラインでも起動できるように。
 // バージョンを上げると古いキャッシュは破棄される。
-const V = 'boss-raid-v1.6.2';
+const V = 'boss-raid-v1.7.0';
+const LANGS = ['en', 'zh-CN', 'zh-TW', 'ko', 'es', 'pt', 'fr', 'de', 'ru', 'it', 'tr', 'pl', 'vi', 'id', 'ar'];
 const SHELL = [
   './', './index.html', './style.css', './manifest.webmanifest', './icon.svg', './icon-192.png',
   './js/main.js', './js/config.js', './js/bosses.js', './js/net.js', './js/fx.js', './js/hitfx.js',
   './js/prefs.js', './js/settings.js', './js/bossfx.js', './js/records.js', './js/pet.js',
-  './js/skins.js', './js/keybinds.js', './js/version.js',
+  './js/skins.js', './js/keybinds.js', './js/version.js', './js/i18n.js',
+  ...LANGS.map((l) => `./js/lang/${l}.js`),
 ];
 
 self.addEventListener('install', (e) => {

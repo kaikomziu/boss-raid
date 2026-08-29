@@ -1,13 +1,15 @@
 // PC向けキーバインド。操作ごとに好きなキーを割り当てられる。
 // 保存は localStorage の bossraid_keys。
 
+import { t, onLangChange } from './i18n.js';
+
 const KEY = 'bossraid_keys';
 
 const ACTIONS = [
-  { id: 'attack', label: 'こうげき（ボスを殴る）', def: ['Space', 'Enter'] },
-  { id: 'pet',    label: 'ペットをなでる',          def: ['KeyF'] },
-  { id: 'skin',   label: 'スキンパネルを開閉',      def: ['KeyG'] },
-  { id: 'mute',   label: 'サウンド オン/オフ',      def: ['KeyM'] },
+  { id: 'attack', def: ['Space', 'Enter'] },
+  { id: 'pet',    def: ['KeyF'] },
+  { id: 'skin',   def: ['KeyG'] },
+  { id: 'mute',   def: ['KeyM'] },
 ];
 
 const BLOCKED = new Set([
@@ -42,8 +44,8 @@ export function formatCode(code) {
   if (NAMES[code]) return NAMES[code];
   if (/^Key[A-Z]$/.test(code)) return code.slice(3);
   if (/^Digit[0-9]$/.test(code)) return code.slice(5);
-  if (/^Numpad[0-9]$/.test(code)) return 'テンキー' + code.slice(6);
-  if (code.startsWith('Numpad')) return 'テンキー' + code.slice(6);
+  if (/^Numpad[0-9]$/.test(code)) return 'Num' + code.slice(6);
+  if (code.startsWith('Numpad')) return 'Num' + code.slice(6);
   return code;
 }
 
@@ -64,11 +66,11 @@ function rebuild() {
       .join('');
     const capturing = capture && capture.actionId === a.id;
     row.innerHTML =
-      `<span class="kb-label">${a.label}</span>` +
-      `<span class="kb-keys">${keys || '<em class="kb-none">なし</em>'}` +
+      `<span class="kb-label">${t('kb.' + a.id)}</span>` +
+      `<span class="kb-keys">${keys || `<em class="kb-none">${t('kb.none')}</em>`}` +
       (capturing
-        ? `<span class="kb-capturing">キーを押す… <small>(Escで中止)</small></span>`
-        : `<button class="kb-add" data-act="${a.id}">＋ 追加</button>`) +
+        ? `<span class="kb-capturing">${t('kb.capturing')} <small>${t('kb.cancelHint')}</small></span>`
+        : `<button class="kb-add" data-act="${a.id}">${t('kb.add')}</button>`) +
       `</span>`;
     els.list.appendChild(row);
   }
@@ -121,6 +123,7 @@ export function initKeybinds(h) {
   });
 
   rebuild();
+  onLangChange(rebuild);
 
   window.addEventListener('keydown', (e) => {
     if (capture) { handleCaptureKey(e); return; }
