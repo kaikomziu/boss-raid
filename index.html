@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>BOSS RAID - 1億HPのボスをみんなで倒せ</title>
 <meta name="description" content="1億HPのボスを世界中のプレイヤーとリアルタイム協力で連打して倒す。倒すたび少し強い次のボスが無限に出現。">
+<meta name="theme-color" content="#0b0f1f">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👹</text></svg>">
+<link rel="apple-touch-icon" href="icon.svg">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,6 +20,8 @@
     <h1 class="logo">👹 BOSS RAID</h1>
     <div class="topbtns">
       <button id="skinBtn" class="ghost">🎨 スキン</button>
+      <button id="settingsBtn" class="ghost">⚙ 設定</button>
+      <button id="recordsBtn" class="ghost">📖 きろく</button>
       <button id="keybindBtn" class="ghost">⌨ キー設定</button>
       <button id="muteBtn" class="ghost">🔊 音 ON</button>
       <button id="infoBtn" class="ghost">❔ 遊び方</button>
@@ -24,7 +29,7 @@
   </header>
 
   <div id="presenceRow">
-    <span class="pulse"></span>今 <b id="players">–</b> 人が戦っている ／ 討伐数 <b id="killCount">0</b> ／ 全体DPS <b id="dps">0 /秒</b>
+    <span class="pulse"></span>今 <b id="players">–</b> 人が戦っている ／ 討伐 <b id="killCount">0</b> ／ DPS <b id="dps">0 /秒</b> ／ 最高 <b id="peak">0</b>人
   </div>
 
   <div id="setupBanner" class="setup">
@@ -35,12 +40,16 @@
   <main id="stage">
     <div id="shakeWrap">
       <div id="bossNo" class="boss-no">BOSS #1</div>
-      <div id="bossName" class="boss-name">スライム大王</div>
+      <div class="boss-name"><span id="bossNameText">スライム大王</span><span id="bossNick" class="boss-nick" hidden>あだ名</span></div>
 
       <div id="clickArea">
         <div id="bossEmoji" class="boss-emoji">👹</div>
+        <div id="weakMarker" class="weak-marker"></div>
+        <div id="bossSpeech" class="boss-speech"></div>
         <div class="boss-shadow"></div>
       </div>
+
+      <div id="bossIntro"></div>
 
       <div id="hpWrap">
         <div class="hp-readout"><span id="hpText">100,000,000</span></div>
@@ -48,14 +57,15 @@
         <div id="hpBar"><div id="hpFill"></div><span id="hpPct">100.0%</span></div>
       </div>
 
-      <p class="hint">画面をクリック / タップ、またはスペースキーで殴る</p>
+      <p class="hint">画面をクリック / タップ、スペースキーでも殴れる ／ 光る<b>弱点</b>を叩くとダメージ2倍</p>
     </div>
   </main>
 
   <footer id="contrib">
     <div class="card">
-      <div class="card-label">あなたの累計クリック</div>
+      <div class="card-label">称号 ／ 累計クリック</div>
       <div class="card-value" id="myTotal">0</div>
+      <div class="card-sub" id="myTitle">村人</div>
     </div>
     <div class="card">
       <div class="card-label">このボスへのダメージ</div>
@@ -74,20 +84,25 @@
     </div>
     <div id="petMain" hidden>
       <div class="pet-badge"><span id="petStageName">たまご</span> ・ <span id="petAge">0日</span></div>
-      <div id="petAvatar">🥚</div>
+      <div class="pet-avatar-wrap">
+        <div id="petAvatar">🥚</div>
+        <span id="petAcc" class="pet-acc"></span>
+      </div>
       <div id="petSpeech"></div>
       <button id="petName" class="pet-name">なまえ</button>
       <div class="pet-stat"><label>なかよし</label><div class="pet-bar"><div id="petAffFill"></div></div></div>
       <div class="pet-stat"><label>おなか</label><div class="pet-bar"><div id="petHunFill"></div></div></div>
+      <div id="petAccRow" class="pet-acc-row"></div>
       <div class="pet-actions">
         <button id="petPet">🖐 なでる</button>
         <button id="petFeed">🍖 ごはん</button>
       </div>
-      <p class="pet-note">※ ペットはボスへのダメージには影響しません</p>
+      <div class="pet-foot"><span id="petDex">ずかん 0/10種</span><span class="pet-note">ダメージには影響しません</span></div>
     </div>
   </div>
 </div>
 
+<div id="hitfxLayer"></div>
 <div id="popLayer"></div>
 <div id="banner"></div>
 
@@ -98,6 +113,44 @@
       <button id="skinClose" class="ghost">✕ 閉じる</button>
     </div>
     <div id="skinGrid"></div>
+  </div>
+</div>
+
+<div id="settingsPanel">
+  <div class="panel">
+    <div class="panel-head">
+      <span>⚙ 設定</span>
+      <button id="settingsClose" class="ghost">✕ 閉じる</button>
+    </div>
+    <div class="set-body">
+      <label class="set-row"><span>攻撃エフェクト</span><select id="setEffect"></select></label>
+      <label class="set-row"><span>クリック音</span><select id="setSound"></select></label>
+      <label class="set-row"><span>ダメージ表示</span><select id="setDmg"></select></label>
+      <label class="set-row set-check"><span>低刺激モード<small>点滅・揺れ・花火を抑える</small></span><input type="checkbox" id="setLowStim"></label>
+      <div class="set-nick">
+        <div class="set-nick-h">ボスのあだ名 <small>（<span id="setNickBoss">-</span> ／ 自分の画面だけ）</small></div>
+        <div class="set-nick-row">
+          <input type="text" id="setNick" maxlength="16" placeholder="あだ名を入力（空で解除）">
+          <button id="setNickSave" class="ghost">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="recordsPanel">
+  <div class="panel">
+    <div class="panel-head">
+      <span>📖 きろく</span>
+      <button id="recordsClose" class="ghost">✕ 閉じる</button>
+    </div>
+    <div id="recordsTabs" class="rec-tabs">
+      <button data-tab="ach" class="on">実績</button>
+      <button data-tab="title">称号</button>
+      <button data-tab="codex">討伐図鑑</button>
+      <button data-tab="stats">統計</button>
+    </div>
+    <div id="recordsBody" class="rec-body"></div>
   </div>
 </div>
 

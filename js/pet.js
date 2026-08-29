@@ -1,18 +1,32 @@
 // ペット要素。クリック(ボスへのダメージ)とは完全に独立。
 // 実時間経過 + なでる/ごはん でなかよし度が上がり、5段階に成長する。
-// セーブは localStorage の bossraid_pet のみ。
+// セーブは localStorage の bossraid_pet / bossraid_petdex。
 
 const KEY = 'bossraid_pet';
+const DEX = 'bossraid_petdex';
 
 const SPECIES = [
-  { id: 'dog',   name: 'いぬ',      stages: ['🥚', '🐶', '🐕', '🦮', '🐺'] },
-  { id: 'cat',   name: 'ねこ',      stages: ['🥚', '🐱', '🐈', '🐈‍⬛', '🦁'] },
-  { id: 'bird',  name: 'とり',      stages: ['🥚', '🐤', '🐦', '🦅', '🦉'] },
-  { id: 'dragon',name: 'りゅう',    stages: ['🥚', '🦎', '🐊', '🐉', '🐲'] },
-  { id: 'slime', name: 'スライム',  stages: ['🥚', '🫧', '🟩', '🟢', '👾'] },
+  { id: 'dog',    name: 'いぬ',     stages: ['🥚', '🐶', '🐕', '🦮', '🐺'] },
+  { id: 'cat',    name: 'ねこ',     stages: ['🥚', '🐱', '🐈', '🐈‍⬛', '🦁'] },
+  { id: 'bird',   name: 'とり',     stages: ['🥚', '🐤', '🐦', '🦅', '🦉'] },
+  { id: 'dragon', name: 'りゅう',   stages: ['🥚', '🦎', '🐊', '🐉', '🐲'] },
+  { id: 'slime',  name: 'スライム', stages: ['🥚', '🫧', '🟩', '🟢', '👾'] },
+  { id: 'rabbit', name: 'うさぎ',   stages: ['🥚', '🐰', '🐇', '🌝', '🦄'] },
+  { id: 'fox',    name: 'きつね',   stages: ['🥚', '🦊', '🦝', '🐺', '🌟'] },
+  { id: 'panda',  name: 'パンダ',   stages: ['🥚', '🐼', '🐻', '🐻‍❄️', '👑'] },
+  { id: 'penguin',name: 'ペンギン', stages: ['🥚', '🐧', '🐧', '🦤', '❄️'] },
+  { id: 'ghost',  name: 'おばけ',   stages: ['🥚', '👻', '👻', '🎃', '💀'] },
 ];
 const STAGE_NAMES = ['たまご', 'ベビー', 'ジュニア', 'せいたい', 'でんせつ'];
 const STAGE_AFF   = [0, 15, 60, 160, 420];
+
+const ACCS = [
+  { id: '', emoji: '', name: 'なし', need: 0 },
+  { id: 'ribbon', emoji: '🎀', name: 'リボン', need: 1 },
+  { id: 'cap',    emoji: '🧢', name: 'ぼうし', need: 2 },
+  { id: 'glass',  emoji: '🕶️', name: 'サングラス', need: 3 },
+  { id: 'crown',  emoji: '👑', name: 'おうかん', need: 4 },
+];
 
 let pet = null;
 const els = {};
@@ -20,6 +34,8 @@ let speechTimer = null;
 
 function load() { try { pet = JSON.parse(localStorage.getItem(KEY)); } catch (_) { pet = null; } }
 function save() { localStorage.setItem(KEY, JSON.stringify(pet)); }
+function dexSet() { try { return new Set(JSON.parse(localStorage.getItem(DEX)) || []); } catch (_) { return new Set(); } }
+function dexAdd(id) { const s = dexSet(); s.add(id); localStorage.setItem(DEX, JSON.stringify([...s])); }
 
 function species() { return SPECIES.find((s) => s.id === pet.species) || SPECIES[0]; }
 function stageIndex(aff) {
@@ -29,14 +45,18 @@ function stageIndex(aff) {
 }
 function ageDays() { return Math.floor((Date.now() - pet.born) / 86400000); }
 
-// 経過時間ぶんの自然変化(読み込み時 + 1分ごと)
+export function petStageNow() {
+  if (!pet) return -1;
+  return stageIndex(pet.affection);
+}
+
 function tick() {
   if (!pet) return;
   const now = Date.now();
   const dtH = (now - pet.lastTick) / 3600000;
   if (dtH > 0.003) {
-    pet.hunger = Math.min(100, pet.hunger + dtH * 8);        // 約12時間で満腹→空腹
-    if (pet.hunger < 85) pet.affection += Math.min(dtH, 18) * 1.4; // お腹が空きすぎだと成長しない
+    pet.hunger = Math.min(100, pet.hunger + dtH * 8);
+    if (pet.hunger < 85) pet.affection += Math.min(dtH, 18) * 1.4;
     pet.lastTick = now;
     save();
   }
@@ -50,7 +70,6 @@ function speak(text) {
   clearTimeout(speechTimer);
   speechTimer = setTimeout(() => els.speech.classList.remove('show'), 2600);
 }
-
 function pop(cls) {
   els.avatar.classList.remove('hop', 'wiggle');
   void els.avatar.offsetWidth;
@@ -58,7 +77,7 @@ function pop(cls) {
 }
 
 function render() {
-  if (!pet) { els.adopt.hidden = false; els.main.hidden = true; els.toggle.textContent = '🥚'; return; }
+  if (!pet) { els.adopt.hidden = false; els.main.hidden = true; els.toggle.textContent = '🥚'; renderDex(); return; }
   els.adopt.hidden = true;
   els.main.hidden = false;
 
@@ -76,6 +95,7 @@ function render() {
 
   els.toggle.textContent = emoji;
   els.avatar.textContent = emoji;
+  els.acc.textContent = ACCS.find((a) => a.id === (pet.acc || ''))?.emoji || '';
   els.stageName.textContent = `${sp.name}・${STAGE_NAMES[st]}`;
   els.age.textContent = `${ageDays()}日`;
   els.name.textContent = pet.name;
@@ -89,15 +109,29 @@ function render() {
   els.avatar.classList.toggle('sad', hungry);
   els.hunFill.classList.toggle('warn', hungry);
 
-  const now = Date.now();
-  const feedLeft = 1800000 - (now - (pet.lastFed || 0));
-  if (feedLeft > 0) {
-    els.feed.disabled = true;
-    els.feed.textContent = `🍖 ${Math.ceil(feedLeft / 60000)}分`;
-  } else {
-    els.feed.disabled = false;
-    els.feed.textContent = '🍖 ごはん';
+  const feedLeft = 1800000 - (Date.now() - (pet.lastFed || 0));
+  if (feedLeft > 0) { els.feed.disabled = true; els.feed.textContent = `🍖 ${Math.ceil(feedLeft / 60000)}分`; }
+  else { els.feed.disabled = false; els.feed.textContent = '🍖 ごはん'; }
+
+  renderAccPicker(st);
+  renderDex();
+}
+
+function renderAccPicker(st) {
+  els.accRow.innerHTML = '';
+  for (const a of ACCS) {
+    const b = document.createElement('button');
+    const locked = st < a.need;
+    b.className = 'pet-acc-btn' + (pet.acc === a.id || (!pet.acc && !a.id) ? ' on' : '') + (locked ? ' lock' : '');
+    b.textContent = a.id ? a.emoji : '∅';
+    b.title = locked ? `${STAGE_NAMES[a.need]}で解放` : a.name;
+    if (!locked) b.addEventListener('click', () => { pet.acc = a.id; save(); render(); });
+    els.accRow.appendChild(b);
   }
+}
+function renderDex() {
+  const s = dexSet();
+  els.dex.textContent = `ずかん ${s.size}/${SPECIES.length}種`;
 }
 
 function doPet() {
@@ -135,19 +169,18 @@ function adopt(id) {
   const now = Date.now();
   pet = {
     species: id, name: SPECIES.find((s) => s.id === id).name,
-    born: now, affection: 0, hunger: 8,
+    born: now, affection: 0, hunger: 8, acc: '',
     lastFed: 0, lastPet: 0, lastTick: now, stage: 0,
   };
+  dexAdd(id);
   save();
   render();
   speak('よろしくね！');
   pop('hop');
 }
 
-// キーバインドから「なでる」を呼ぶ用
 export function pokePet() { doPet(); }
 
-// ボス撃破時に呼ばれる(クリックではなくイベント連動)
 export function petCelebrate() {
   if (!pet) return;
   pet.affection += 4;
@@ -160,7 +193,8 @@ export function petCelebrate() {
 export function initPet() {
   [
     ['toggle', 'petToggle'], ['panel', 'petPanel'], ['adopt', 'petAdopt'],
-    ['eggs', 'petEggs'], ['main', 'petMain'], ['avatar', 'petAvatar'],
+    ['eggs', 'petEggs'], ['main', 'petMain'], ['avatar', 'petAvatar'], ['acc', 'petAcc'],
+    ['accRow', 'petAccRow'], ['dex', 'petDex'],
     ['speech', 'petSpeech'], ['name', 'petName'], ['stageName', 'petStageName'],
     ['age', 'petAge'], ['affFill', 'petAffFill'], ['hunFill', 'petHunFill'],
     ['petBtn', 'petPet'], ['feed', 'petFeed'], ['widget', 'petWidget'],

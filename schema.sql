@@ -1,6 +1,7 @@
 -- ============================================================
 --  BOSS RAID  —  Supabase スキーマ
 --  共有プロジェクト kifnzvktwbomxthzvvgy の SQL Editor で実行する
+--  (何度実行してもOK。列やポリシーは存在チェック付き)
 -- ============================================================
 
 create table if not exists boss_raid_state (
@@ -11,8 +12,12 @@ create table if not exists boss_raid_state (
   max_hp         bigint not null default 100000000,
   hp             bigint not null default 100000000,
   defeated_count bigint not null default 0,
+  peak_players   bigint not null default 0,
   updated_at     timestamptz not null default now()
 );
+
+-- v1.4.0 で追加した列(既存テーブルにも足す)
+alter table boss_raid_state add column if not exists peak_players bigint not null default 0;
 
 insert into boss_raid_state (id) values (1) on conflict do nothing;
 
@@ -21,8 +26,12 @@ alter table boss_raid_state enable row level security;
 drop policy if exists "boss_raid read" on boss_raid_state;
 create policy "boss_raid read" on boss_raid_state for select using (true);
 
--- まとめて受け取ったダメージを原子的に適用し、0以下なら次のボスへロールする
-create or replace function boss_raid_hit(dmg bigint)
+-- 旧シグネチャを掃除
+drop function if exists boss_raid_hit(bigint);
+
+-- まとめて受け取ったダメージを原子的に適用し、0以下なら次のボスへロールする。
+-- players = 送信元が見ている同時接続人数(ピーク記録の更新に使う。0なら無視)
+create or replace function boss_raid_hit(dmg bigint, players int default 0)
 returns boss_raid_state
 language plpgsql
 security definer
@@ -36,6 +45,7 @@ declare
 begin
   update boss_raid_state
      set hp = hp - d,
+         peak_players = greatest(peak_players, coalesce(players, 0)),
          updated_at = now()
    where id = 1
   returning * into st;
@@ -45,12 +55,12 @@ begin
     -- 1.15^n。bigint オーバーフロー回避のため指数は 150 で頭打ち
     nhp := floor(100000000 * power(1.15, least(n, 150)))::bigint;
     update boss_raid_state
-       set boss_index     = n,
-           defeated_count  = defeated_count + 1,
-           max_hp          = nhp,
-           hp              = nhp,
-           boss_name       = 'BOSS #' || (n + 1),
-           updated_at      = now()
+       set boss_index      = n,
+           defeated_count   = defeated_count + 1,
+           max_hp           = nhp,
+           hp               = nhp,
+           boss_name        = 'BOSS #' || (n + 1),
+           updated_at       = now()
      where id = 1
     returning * into st;
   end if;
@@ -59,7 +69,7 @@ begin
 end
 $$;
 
-grant execute on function boss_raid_hit(bigint) to anon;
+grant execute on function boss_raid_hit(bigint, int) to anon;
 
 -- リアルタイム配信に登録(これを忘れると postgres_changes が無音になる)
 alter publication supabase_realtime add table boss_raid_state;

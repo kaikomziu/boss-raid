@@ -19,15 +19,41 @@ export async function fetchState() {
   return { data };
 }
 
-// まとめてダメージ送信。成功すると最新状態が返る
-export async function sendHit(dmg) {
-  const { data, error } = await supabase.rpc('boss_raid_hit', { dmg });
+// まとめてダメージ送信。成功すると最新状態が返る。
+// players = 自分が見ている同時接続人数(ピーク記録用、任意)
+// スキーマが古い(1引数版)場合は自動でフォールバックする。
+let twoArg = true;
+export async function sendHit(dmg, players = 0) {
+  const args = twoArg ? { dmg, players } : { dmg };
+  let { data, error } = await supabase.rpc('boss_raid_hit', args);
+  if (error && twoArg && /function|argument|schema cache/i.test(error.message || '')) {
+    twoArg = false;
+    ({ data, error } = await supabase.rpc('boss_raid_hit', { dmg }));
+  }
   if (error) {
     console.warn('[boss-raid] sendHit error:', error.message);
     return { error };
   }
-  // rpc が setof/row を返すと配列になることがある
   return { data: Array.isArray(data) ? data[0] : data };
+}
+
+// 他プレイヤーのタップ位置をリアルタイム共有(DB不要の broadcast)
+export function joinTaps({ onTap } = {}) {
+  const ch = supabase.channel('boss_raid_taps', {
+    config: { broadcast: { self: false } },
+  });
+  if (onTap) ch.on('broadcast', { event: 't' }, ({ payload }) => onTap(payload));
+  ch.subscribe();
+  let last = 0;
+  return {
+    send(x, y) {
+      const now = performance.now();
+      if (now - last < 110) return;      // 送りすぎ防止
+      last = now;
+      ch.send({ type: 'broadcast', event: 't', payload: { x, y } });
+    },
+    destroy() { supabase.removeChannel(ch); },
+  };
 }
 
 // boss_raid_state の変更を購読

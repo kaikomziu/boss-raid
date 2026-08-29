@@ -158,11 +158,16 @@ body {
 }
 .dmg-me { color: var(--pop-me); font-size: 22px; }
 .dmg-others { color: hsl(var(--boss-hue) 90% 72%); font-size: 15px; opacity: .82; }
+.dmg-weak { color: #ffe14d; font-size: 26px; text-shadow: 0 0 10px #ff8a00, 0 2px 8px rgba(0,0,0,.5); }
 @keyframes rise {
   0% { opacity: 0; transform: translate(-50%,-50%) scale(.5); }
   15% { opacity: 1; transform: translate(-50%,-70%) scale(1.1); }
   100% { opacity: 0; transform: translate(-50%,-160%) scale(1); }
 }
+/* ダメージ数字スタイル(設定) */
+.dmgst-simple { font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+.dmgst-mini { font-size: 14px !important; font-weight: 700; opacity: .85; }
+.dmgst-gothic { font-family: Georgia, "Times New Roman", serif; font-style: italic; letter-spacing: .02em; }
 
 /* バナー & オーバーレイ */
 #banner {
@@ -183,14 +188,14 @@ body {
 .ver li { font-size: 11.5px; padding: 6px 0; border-top: 1px solid var(--border); }
 .ver li span { color: var(--accent); }
 
-/* モーダルパネル(スキン / キー設定 共通) */
-#skinPanel, #keybindPanel {
+/* モーダルパネル(共通) */
+#skinPanel, #keybindPanel, #settingsPanel, #recordsPanel {
   position: fixed; inset: 0; z-index: 60;
   display: none; align-items: center; justify-content: center;
   background: rgba(0,0,0,.55); backdrop-filter: blur(3px);
   padding: 16px;
 }
-#skinPanel.show, #keybindPanel.show { display: flex; }
+#skinPanel.show, #keybindPanel.show, #settingsPanel.show, #recordsPanel.show { display: flex; }
 .panel {
   width: min(96vw, 460px); max-height: 82vh; display: flex; flex-direction: column;
   background: var(--panel-bg); color: var(--panel-ink);
@@ -289,11 +294,26 @@ body {
 .pet-egg:hover { border-color: var(--accent); }
 
 .pet-badge { font-size: 10.5px; color: var(--muted); text-align: center; }
+.pet-avatar-wrap { position: relative; width: 64px; margin: 4px auto 2px; }
 #petAvatar {
-  font-size: 56px; line-height: 1; text-align: center; margin: 4px 0 2px; cursor: pointer;
+  font-size: 56px; line-height: 1; text-align: center; cursor: pointer;
   user-select: none;
   filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
 }
+.pet-acc {
+  position: absolute; top: -6px; right: -2px; font-size: 22px;
+  pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,.4));
+}
+.pet-acc-row { display: flex; justify-content: center; gap: 5px; margin-top: 8px; }
+.pet-acc-btn {
+  width: 26px; height: 26px; border-radius: 8px; cursor: pointer;
+  font-size: 13px; line-height: 1;
+  background: var(--surface-2); color: inherit; border: 1px solid var(--border);
+}
+.pet-acc-btn.on { border-color: var(--accent); background: var(--surface); }
+.pet-acc-btn.lock { opacity: .35; cursor: not-allowed; }
+.pet-foot { display: flex; justify-content: space-between; gap: 6px; margin-top: 8px; }
+.pet-foot #petDex { font-size: 9px; color: var(--muted); }
 #petAvatar.sad { filter: grayscale(.6) drop-shadow(0 6px 12px rgba(0,0,0,.35)); }
 #petAvatar.hop { animation: pethop .5s ease; }
 #petAvatar.wiggle { animation: petwig .4s ease; }
@@ -332,8 +352,191 @@ body {
 }
 .pet-actions button:hover:not(:disabled) { border-color: var(--accent); }
 .pet-actions button:disabled { opacity: .5; cursor: default; }
-.pet-note { font-size: 8.5px; color: var(--muted); text-align: center; margin-top: 7px; }
+.pet-note { font-size: 8.5px; color: var(--muted); text-align: right; }
 
+/* ===== ボスのダメージ表現 (#1) ===== */
+#clickArea { overflow: visible; }
+.boss-emoji {
+  filter:
+    drop-shadow(0 12px 30px hsl(var(--boss-hue) 90% 45% / .5))
+    saturate(calc(1 - var(--hurt, 0) * .55))
+    brightness(calc(1 - var(--hurt, 0) * .28));
+}
+.boss-emoji[data-hurt="2"] { transform: rotate(-2deg); }
+.boss-emoji[data-hurt="3"] { transform: rotate(2deg); }
+.boss-emoji.boss-dying { animation: bossTremble .12s linear infinite; }
+@keyframes bossTremble {
+  0% { transform: translate(-1px,1px) rotate(-1deg); }
+  50% { transform: translate(2px,-1px) rotate(1.5deg); }
+  100% { transform: translate(-1px,0) rotate(-1deg); }
+}
+.defeat-flash {
+  position: absolute; inset: -20% -30%; z-index: 5; border-radius: 50%;
+  background: radial-gradient(circle, #fff, transparent 60%);
+  animation: dflash .5s ease-out forwards; pointer-events: none;
+}
+@keyframes dflash { 0% { opacity: .95; transform: scale(.4); } 100% { opacity: 0; transform: scale(1.4); } }
+.boss-fly {
+  position: absolute; left: 50%; top: 45%; font-size: min(30vw, 170px);
+  z-index: 6; pointer-events: none;
+  animation: bfly 1s cubic-bezier(.4,0,.9,.4) forwards;
+}
+@keyframes bfly {
+  0% { transform: translate(-50%,-50%) scale(1) rotate(0); opacity: 1; }
+  100% { transform: translate(120%,-320%) scale(.3) rotate(540deg); opacity: 0; }
+}
+
+/* ===== 弱点 (#5) ===== */
+.weak-marker {
+  position: absolute; width: 22%; aspect-ratio: 1; z-index: 4;
+  transform: translate(-50%,-50%); pointer-events: none;
+  border-radius: 50%; opacity: 0; transition: opacity .2s;
+  background: radial-gradient(circle, rgba(255,80,80,.55), rgba(255,220,0,.25) 55%, transparent 72%);
+  box-shadow: 0 0 24px rgba(255,90,90,.7);
+}
+.weak-marker.show { opacity: 1; animation: weakPulse .8s ease-in-out infinite; }
+@keyframes weakPulse { 50% { transform: translate(-50%,-50%) scale(1.18); } }
+.weak-burst {
+  position: absolute; width: 26%; aspect-ratio: 1; z-index: 6;
+  transform: translate(-50%,-50%); pointer-events: none;
+  border: 3px solid #ffe14d; border-radius: 50%;
+  animation: weakBurst .4s ease-out forwards;
+}
+@keyframes weakBurst { 0% { opacity: 1; transform: translate(-50%,-50%) scale(.3); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(1.6); } }
+
+/* ===== ボスのセリフ (#28) ===== */
+.boss-speech {
+  position: absolute; left: 50%; top: -6%; transform: translateX(-50%);
+  z-index: 7; max-width: 80%; white-space: nowrap;
+  background: var(--panel-bg); color: var(--panel-ink);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 5px 12px; font-size: 12px; font-weight: 700;
+  opacity: 0; transition: opacity .2s, transform .2s; pointer-events: none;
+}
+.boss-speech.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+/* ===== 登場アニメ (#3) ===== */
+#bossIntro {
+  position: fixed; inset: 0; z-index: 58; display: none;
+  flex-direction: column; align-items: center; justify-content: center;
+  pointer-events: none; text-align: center;
+}
+#bossIntro.play { display: flex; animation: introFade 1.4s ease forwards; }
+@keyframes introFade { 0%,70% { background: rgba(0,0,0,.35); } 100% { background: rgba(0,0,0,0); } }
+#bossIntro .bi-no { font-size: 14px; letter-spacing: .3em; color: var(--accent); font-weight: 800; }
+#bossIntro .bi-emoji { font-size: min(40vw, 220px); animation: introZoom 1.4s cubic-bezier(.2,1,.3,1) forwards; }
+#bossIntro .bi-name { font-size: clamp(20px, 6vw, 34px); font-weight: 900; text-shadow: 0 0 24px var(--accent); animation: introSlide 1.4s ease forwards; }
+@keyframes introZoom { 0% { transform: scale(3.4); opacity: 0; } 25% { opacity: 1; } 80% { transform: scale(1); } 100% { transform: scale(1); opacity: 0; } }
+@keyframes introSlide { 0%,20% { transform: translateY(20px); opacity: 0; } 45% { opacity: 1; transform: translateY(0); } 85% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ===== 攻撃エフェクト / 他プレイヤーのタップ ===== */
+#hitfxLayer { position: fixed; inset: 0; pointer-events: none; z-index: 44; }
+.hitfx { position: absolute; transform: translate(-50%,-50%); pointer-events: none; }
+.fx-slash .fx-slash-line {
+  display: block; width: 120px; height: 6px; border-radius: 3px;
+  background: linear-gradient(90deg, transparent, #fff, transparent);
+  transform: rotate(var(--r, 0deg));
+  animation: fxSlash .34s ease-out forwards;
+}
+@keyframes fxSlash { 0% { opacity: 0; transform: rotate(var(--r)) scaleX(.2); } 30% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--r)) scaleX(1.2); } }
+.fx-fire { width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle, #ffe08a, #ff5a1e 60%, transparent); animation: fxFire .5s ease-out forwards; }
+@keyframes fxFire { 0% { opacity: 1; transform: translate(-50%,-50%) scale(.6); } 100% { opacity: 0; transform: translate(-50%,-180%) scale(1.4); } }
+.fx-punch { font-size: 34px; animation: fxPunch .42s ease-out forwards; }
+@keyframes fxPunch { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.3) rotate(-20deg); } 30% { opacity: 1; transform: translate(-50%,-50%) scale(1.2) rotate(0); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(1.5); } }
+.fx-laser .fx-laser-line {
+  display: block; width: 4px; height: 200vh; margin-top: -100vh;
+  background: linear-gradient(#fff, #6cf); box-shadow: 0 0 12px #6cf;
+  animation: fxLaser .3s ease-out forwards;
+}
+@keyframes fxLaser { 0% { opacity: 0; transform: scaleY(0); } 20% { opacity: 1; } 100% { opacity: 0; } }
+.fx-cat { font-size: 24px; animation: fxCat .5s ease-out forwards; }
+@keyframes fxCat { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.4); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%,-90%) scale(1); } }
+.remote-tap {
+  position: absolute; width: 26px; height: 26px; transform: translate(-50%,-50%);
+  border: 2px solid hsl(var(--boss-hue) 90% 70%); border-radius: 50%;
+  animation: rtap .5s ease-out forwards; pointer-events: none;
+}
+@keyframes rtap { 0% { opacity: .9; transform: translate(-50%,-50%) scale(.3); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(1.5); } }
+
+/* ===== 実績トースト ===== */
+.ach-toast {
+  position: fixed; left: 50%; bottom: 26px;
+  transform: translate(-50%, 20px); opacity: 0;
+  z-index: 70; width: min(88vw, 340px);
+  background: var(--panel-bg); color: var(--panel-ink);
+  border: 1px solid var(--accent); border-radius: 14px;
+  padding: 12px 16px; font-size: 12.5px; line-height: 1.6; text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,.5);
+  transition: opacity .35s, transform .35s;
+}
+.ach-toast.show { opacity: 1; transform: translate(-50%, 0); }
+.ach-toast span { color: var(--muted); }
+
+/* ===== 設定パネル ===== */
+.set-body { display: flex; flex-direction: column; gap: 12px; }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12.5px; font-weight: 700; }
+.set-row select {
+  font: inherit; font-size: 12px; padding: 5px 8px; border-radius: 8px;
+  background: var(--surface-2); color: var(--panel-ink); border: 1px solid var(--border);
+}
+.set-check { align-items: flex-start; }
+.set-check span { display: flex; flex-direction: column; }
+.set-check small { font-weight: 400; color: var(--muted); font-size: 10px; }
+.set-check input { width: 20px; height: 20px; flex: none; margin-top: 2px; accent-color: var(--accent); }
+.set-nick { border-top: 1px solid var(--border); padding-top: 12px; }
+.set-nick-h { font-size: 12.5px; font-weight: 700; margin-bottom: 7px; }
+.set-nick-h small { font-weight: 400; color: var(--muted); }
+.set-nick-row { display: flex; gap: 6px; }
+.set-nick-row input {
+  flex: 1; font: inherit; font-size: 12px; padding: 6px 9px; border-radius: 8px;
+  background: var(--surface-2); color: var(--panel-ink); border: 1px solid var(--border);
+}
+
+/* ===== きろくパネル ===== */
+.rec-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+.rec-tabs button {
+  flex: 1; font: inherit; font-size: 11.5px; font-weight: 700; padding: 7px 2px; cursor: pointer;
+  background: var(--surface); color: var(--muted); border: 1px solid var(--border); border-radius: 9px;
+}
+.rec-tabs button.on { color: var(--panel-ink); border-color: var(--accent); }
+.rec-body { overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.rec-count { font-size: 12px; font-weight: 800; color: var(--accent); text-align: right; }
+.rec-ach, .rec-title, .rec-codex, .rec-stat {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+  font-size: 12px;
+}
+.rec-ach { opacity: .5; }
+.rec-ach.got { opacity: 1; }
+.rec-ach .ra-i { font-size: 16px; flex: none; }
+.rec-ach .ra-t { display: flex; flex-direction: column; }
+.rec-ach .ra-t small { color: var(--muted); font-size: 10px; }
+.rec-title { flex-direction: column; align-items: flex-start; gap: 2px; opacity: .45; }
+.rec-title.got { opacity: 1; }
+.rec-title.cur { border-color: var(--accent); }
+.rec-title small { color: var(--muted); font-size: 10px; }
+.rec-cur-title, .rec-next { text-align: center; font-size: 12px; }
+.rec-cur-title b { font-size: 20px; }
+.rec-next { color: var(--muted); margin-bottom: 4px; }
+.rec-codex .rc-no { font-weight: 800; color: var(--accent); flex: none; width: 40px; }
+.rec-codex .rc-mid { display: flex; flex-direction: column; flex: 1; }
+.rec-codex .rc-mid small { color: var(--muted); font-size: 10px; }
+.rec-codex .rc-dmg { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+.rec-codex .rc-dmg small { display: block; font-weight: 400; color: var(--muted); }
+.rec-stat { justify-content: space-between; }
+.rec-stat b { font-variant-numeric: tabular-nums; }
+.rec-empty { text-align: center; color: var(--muted); font-size: 12px; padding: 20px 0; }
+.boss-nick {
+  margin-left: 8px; font-size: .5em; font-weight: 700; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 6px; padding: 1px 5px; vertical-align: middle;
+}
+
+@media (max-width: 440px) {
+  .logo { font-size: 16px; }
+  .ghost { padding: 5px 8px; font-size: 10.5px; }
+  .topbtns { gap: 4px; }
+  #presenceRow { font-size: 11px; }
+}
 @media (max-width: 380px) {
   .boss-emoji { font-size: 44vw; }
 }
