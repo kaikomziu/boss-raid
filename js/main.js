@@ -350,6 +350,12 @@ function applyInitialState(data) {
 async function boot() {
   cacheDom();
   loadPrefs();
+
+  // v1.4.0 移行: 累計ダメージが未記録なら、それまでの累計クリック数を引き継ぐ
+  // (v1.3.x 以前は1クリック=1ダメージだったため)
+  if (localStorage.getItem('bossraid_dmgTotal') === null && LS.total > 0) {
+    LS.dmgTotal = LS.total;
+  }
   initCanvas(el.fxCanvas);
   initPopLayer(el.popLayer);
   initShake(el.shakeWrap);
