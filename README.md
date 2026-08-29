@@ -1,34 +1,37 @@
-# BOSS RAID
+# 👹 BOSS RAID
 
-1億HPのボスを、世界中のプレイヤーとリアルタイム協力で連打して倒すゲーム。
-倒すたびに少しずつ強い(HP ×1.15)次のボスが無限に出現します。
+**▶ 今すぐ遊ぶ / Play now: <https://kaikomziu.github.io/boss-raid/>**
 
-公開: https://kaikomziu.github.io/boss-raid/
+1億HP（100,000,000）のボスを、世界中のプレイヤーと**リアルタイム協力**でクリック連打して倒すブラウザゲーム。
+倒すたびに少しずつ強い（HP ×1.15）次のボスが**無限に出現**します。
 
-## 仕組み
+登録不要・完全無料・匿名。PC / スマホ対応。ホーム画面に追加すればアプリのように起動（PWA）。
 
-- 素の HTML / CSS / ES Modules(ビルド不要)。GitHub Pages 配信。
-- バックエンドは共有 Supabase(`kifnzvktwbomxthzvvgy`)。
-  - `boss_raid_state` … 現在のボス状態(1行)
-  - `boss_raid_hit(dmg)` RPC … まとめて受け取ったダメージを原子的に適用、0以下で次のボスへロール
-- クライアントは約 0.7 秒ぶんのクリックをまとめて RPC 送信。
-- 全員が `boss_raid_state` を `postgres_changes` で購読し、誰かが殴ると全画面に即反映。
-- 同時接続人数は Realtime presence。
-- プレイヤーは完全匿名。累計クリック数と現ボスへのダメージは localStorage に記録。
-- チート対策なし(ダメージ上限なし、負値のみ拒否)。
+> BOSS RAID is a browser game where everyone online clicks down a single **100,000,000 HP boss together in real time**. Every hit lands on everyone's screen instantly. Beat it and a stronger boss appears — forever. Free, no sign-up, anonymous. *(UI is in Japanese.)*
 
-## セットアップ
+## 特徴 / Features
 
-Supabase の SQL Editor で [`schema.sql`](schema.sql) を実行するだけ。
-実行前はゲーム画面に「設定待ち」バナーが出て、ローカル表示のみになります。
+- 🌍 **リアルタイム協力** — 接続中の全員で1体のボスを削る。他プレイヤーの攻撃が約0.2秒で反映
+- ♾️ **無限に続くボス** — 倒すたびに少し強い次のボスへ
+- ⚡ **弱点システム** — ときどき光る弱点を叩く（キーボードでも）とダメージ2倍
+- 🏅 実績22種・称号9段階・討伐図鑑・統計
+- 🎨 画面スキン24種 / 🐣 ペット育成10種＋きせかえ / ⌨ PC向けキーバインド
+- 👁 `?spectate` で観戦モード
 
-## ファイル
+## 技術 / How it works
 
-| ファイル | 役割 |
-|---|---|
-| `js/config.js` | Supabase 接続情報・各種定数 |
-| `js/bosses.js` | `boss_index` からボスの名前/絵文字/色/HP を決定論的に生成 |
-| `js/net.js` | Supabase クライアント・RPC・購読・presence |
-| `js/fx.js` | 効果音 / 花火 / ダメージポップ / 画面揺れ |
-| `js/main.js` | ゲーム本体 |
-| `js/version.js` | 更新履歴 |
+- 素の HTML / CSS / ES Modules（ビルド不要）、GitHub Pages 配信
+- バックエンドは Supabase
+  - 確定HP・ボス切り替え: `boss_raid_state` テーブル ＋ `boss_raid_hit(dmg, players)` RPC
+  - 体感の速さ: Realtime **Broadcast** で各自160msごとにダメージ量を全員へ直接配信（DB非経由）
+  - 表示HPは「減る一方 ＋ 確定値でズレ補正」モデルでカクつきなし
+- 同時接続人数は Realtime presence（心拍方式でゴースト除外）
+- プレイヤーは完全匿名。進捗は localStorage
+
+## セットアップ / Self-hosting
+
+Supabase の SQL Editor で [`schema.sql`](schema.sql) を実行し、[`js/config.js`](js/config.js) の接続情報を差し替えるだけ。
+
+## ライセンス
+
+個人制作。開発は AI（Claude）支援。AI生成のイラスト・音楽は不使用。
