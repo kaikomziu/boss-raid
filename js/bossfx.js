@@ -69,6 +69,17 @@ export function isWeakHit(nx, ny) {
   }
   return false;
 }
+
+// 弱点が出ているか
+export function weakActive() { return weak.active; }
+
+// キーボード攻撃用: 弱点が出ていれば消費して true(=会心)。狙う必要なし。
+export function tryWeakKey() {
+  if (!weak.active) return false;
+  setWeak(false);
+  burstMarker();
+  return true;
+}
 function burstMarker() {
   const b = document.createElement('div');
   b.className = 'weak-burst';

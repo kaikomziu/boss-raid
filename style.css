@@ -396,6 +396,14 @@ body {
 }
 .weak-marker.show { opacity: 1; animation: weakPulse .8s ease-in-out infinite; }
 @keyframes weakPulse { 50% { transform: translate(-50%,-50%) scale(1.18); } }
+.weak-kbd {
+  position: absolute; left: 50%; top: -18px; transform: translateX(-50%);
+  white-space: nowrap; font-size: 9px; font-weight: 800; color: #ffe14d;
+  text-shadow: 0 1px 3px rgba(0,0,0,.9); display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .weak-marker.show .weak-kbd { display: block; }
+}
 .weak-burst {
   position: absolute; width: 26%; aspect-ratio: 1; z-index: 6;
   transform: translate(-50%,-50%); pointer-events: none;

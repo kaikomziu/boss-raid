@@ -13,7 +13,7 @@ import { loadPrefs, PREFS } from './prefs.js';
 import { initSettings } from './settings.js';
 import { initHitFx, hitEffect } from './hitfx.js';
 import {
-  initBossFx, updateBossVisual, tickWeak, isWeakHit, bossIntro, bossDefeatSeq,
+  initBossFx, updateBossVisual, tickWeak, isWeakHit, tryWeakKey, bossIntro, bossDefeatSeq,
 } from './bossfx.js';
 import { initRecords, checkAchievements, recordDefeat, titleFor } from './records.js';
 
@@ -249,14 +249,15 @@ let lastSnd = 0;
 function hit(ev) {
   if (!ready) return;
 
-  // クリック位置(クリック領域内の正規化座標)
   const r = el.clickArea.getBoundingClientRect();
+  const pointer = ev && ev.clientX != null;
   let cx = r.left + r.width / 2, cy = r.top + r.height * 0.4;
-  if (ev && ev.clientX != null) { cx = ev.clientX; cy = ev.clientY; }
+  if (pointer) { cx = ev.clientX; cy = ev.clientY; }
   const nx = Math.min(1, Math.max(0, (cx - r.left) / r.width));
   const ny = Math.min(1, Math.max(0, (cy - r.top) / r.height));
 
-  const weak = isWeakHit(nx, ny);
+  // マウス/タップ = 弱点を「狙う」/ キーボード = 弱点が出ていれば自動で会心
+  const weak = pointer ? isWeakHit(nx, ny) : tryWeakKey();
   const dmg = weak ? 2 : 1;
 
   pendingDmg += dmg;
@@ -467,6 +468,7 @@ function showInfo() {
       1億HPのボスを世界中のプレイヤーとリアルタイム協力で連打して倒すゲーム。
       倒すたび少しずつ強い次のボスが無限に出現します。<br>
       画面のどこをクリック/タップしてもOK。ときどき光る<b>弱点</b>を叩くとダメージ2倍。
+      キーボード操作なら、弱点が出ている間にこうげきキーを押せば自動で会心になります。
       <ul class="ver">${rows}</ul>
     </div>`;
   el.banner.classList.add('show');
