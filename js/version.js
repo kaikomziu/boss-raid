@@ -50,5 +50,10 @@ export const VERSION_HISTORY = [
     date: '2026-08-29',
     notes: 'キーボード操作でも弱点(ダメージ2倍)を取れるように。弱点が出ている間にこうげきキー(スペース等)を押すと、狙わなくても自動で会心。マウス/タップは従来どおり弱点を狙って当てる方式。PCでは弱点マーカーに「⌨ 会心」ヒントを表示。',
   },
+  {
+    version: '1.5.0',
+    date: '2026-08-29',
+    notes: 'SEO対応。タイトル/説明文を検索向けに最適化、OGP・Twitterカード用メタタグとOG画像(og.png)、canonical、JSON-LD(VideoGame構造化データ)、sitemap.xml/robots.txtを追加。JavaScript無効時にゲーム概要が読める<noscript>も設置。',
+  },
 ];
 export const CURRENT_VERSION = VERSION_HISTORY[VERSION_HISTORY.length - 1].version;
