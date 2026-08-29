@@ -91,7 +91,8 @@ export function subscribeState(onChange) {
 // 同時接続人数(presence)
 // Supabase の presence は切断が汚いと「幽霊」が数十秒〜数分残るので、
 // 各自 20 秒ごとに track で心拍を打ち、心拍が古い key は数えない。
-export function joinPresence(onCount) {
+export function joinPresence(onCount, opts = {}) {
+  const track = opts.track !== false;
   const id = Math.random().toString(36).slice(2);
   const STALE = 40000;
   const ch = supabase.channel('boss_raid_presence', {
@@ -106,21 +107,21 @@ export function joinPresence(onCount) {
       const newest = Math.max(0, ...metas.map((m) => m.at || 0));
       if (now - newest < STALE) live++;
     }
-    onCount(Math.max(1, live));
+    onCount(track ? Math.max(1, live) : live);
   }
 
-  const beat = () => ch.track({ at: Date.now() }).then(recount).catch(() => {});
+  const beat = () => (track ? ch.track({ at: Date.now() }).then(recount).catch(() => {}) : recount());
 
   ch.on('presence', { event: 'sync' }, recount);
   ch.subscribe((status) => { if (status === 'SUBSCRIBED') beat(); });
 
-  const hb = setInterval(beat, 15000);
   const sweep = setInterval(recount, 5000);
-  addEventListener('visibilitychange', () => { if (!document.hidden) beat(); });
+  const hb = track ? setInterval(beat, 15000) : null;
+  if (track) addEventListener('visibilitychange', () => { if (!document.hidden) beat(); });
   const bye = () => {
     clearInterval(hb);
     clearInterval(sweep);
-    try { ch.untrack(); } catch (_) {}
+    try { if (track) ch.untrack(); } catch (_) {}
   };
   addEventListener('pagehide', bye);
   addEventListener('beforeunload', bye);

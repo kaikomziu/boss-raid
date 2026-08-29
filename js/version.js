@@ -60,5 +60,10 @@ export const VERSION_HISTORY = [
     date: '2026-08-29',
     notes: '同期のラグを大幅短縮。DBを介さない Realtime Broadcast で各自160msごとにダメージ量を全員へ直接配信し、受けた側は即HPに反映(体感 約700ms→200ms台)。表示HPは「減る一方＋確定値でズレ補正」の方式に変更してカクつきを解消。DB送信間隔を450msに短縮、HP0付近では間隔を待たず確定値を取得して撃破を素早く反映。',
   },
+  {
+    version: '1.6.1',
+    date: '2026-08-29',
+    notes: 'URLに ?spectate を付けると観戦モードで開けるように(同時接続人数に数えられず、ダメージも送らない。動作確認用)。',
+  },
 ];
 export const CURRENT_VERSION = VERSION_HISTORY[VERSION_HISTORY.length - 1].version;

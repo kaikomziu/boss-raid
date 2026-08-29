@@ -19,6 +19,10 @@ import { initRecords, checkAchievements, recordDefeat, titleFor } from './record
 
 const fmt = (n) => Math.max(0, Math.floor(n)).toLocaleString('en-US');
 
+// ?spectate … 観戦モード: presence に数えられず、DB送信もブロードキャストもしない。
+// 見た目だけローカルで動く(開発・動作確認用)。
+const SPECTATE = new URLSearchParams(location.search).has('spectate');
+
 // 億 / 万 の概算表記(例: 98234102 -> "9,823万")
 function jpShort(n) {
   n = Math.max(0, Math.floor(n));
@@ -153,11 +157,11 @@ function updateDps() {
 }
 setInterval(updateDps, 500);
 
-// 累計プレイ時間 + 定期的な実績チェック
+// 累計プレイ時間 + 定期的な実績チェック(観戦モードでは記録しない)
 setInterval(() => {
-  if (!document.hidden) LS.playSec = LS.playSec + 1;
+  if (!document.hidden && !SPECTATE) LS.playSec = LS.playSec + 1;
 }, 1000);
-setInterval(() => checkAchievements(statsSnapshot()), 5000);
+setInterval(() => { if (!SPECTATE) checkAchievements(statsSnapshot()); }, 5000);
 
 function statsSnapshot() {
   return {
@@ -219,9 +223,10 @@ function flashOthers(amount) {
 function onBossDefeated(newIndex, newHp) {
   const beaten = boss;
   const contributed = myBossDamage > 0;
-  if (contributed) LS.kills = LS.kills + 1;
-
-  recordDefeat({ index: beaten.index, name: LS.nick(beaten.index) || beaten.name, myDmg: myBossDamage, myMax: beaten.maxHp });
+  if (!SPECTATE) {
+    if (contributed) LS.kills = LS.kills + 1;
+    recordDefeat({ index: beaten.index, name: LS.nick(beaten.index) || beaten.name, myDmg: myBossDamage, myMax: beaten.maxHp });
+  }
 
   playFanfare();
   fireworks(4200);
@@ -276,20 +281,21 @@ function hit(ev) {
   const weak = pointer ? isWeakHit(nx, ny) : tryWeakKey();
   const dmg = weak ? 2 : 1;
 
-  pendingDmg += dmg;
   displayHp = Math.max(0, displayHp - dmg);   // 自分の攻撃は即反映
-  myBossDamage += dmg;
-  sessionDmg += dmg;
   dpsSamples.push({ drop: dmg, t: performance.now() });
-  LS.total = LS.total + 1;
-  LS.dmgTotal = LS.dmgTotal + dmg;
-  LS.curDmg = myBossDamage;
-  if (weak) LS.weakHits = LS.weakHits + 1;
 
-  if (live) live.reportDamage(dmg, boss.index);   // 他プレイヤーへ即共有
-
-  const pct = boss.maxHp > 0 ? (myBossDamage / boss.maxHp) * 100 : 0;
-  if (pct > LS.bestPct) LS.bestPct = +pct.toFixed(3);
+  if (!SPECTATE) {
+    pendingDmg += dmg;
+    myBossDamage += dmg;
+    sessionDmg += dmg;
+    LS.total = LS.total + 1;
+    LS.dmgTotal = LS.dmgTotal + dmg;
+    LS.curDmg = myBossDamage;
+    if (weak) LS.weakHits = LS.weakHits + 1;
+    if (live) live.reportDamage(dmg, boss.index);   // 他プレイヤーへ即共有
+    const pct = boss.maxHp > 0 ? (myBossDamage / boss.maxHp) * 100 : 0;
+    if (pct > LS.bestPct) LS.bestPct = +pct.toFixed(3);
+  }
 
   // ダメージポップ
   const now = performance.now();
@@ -308,8 +314,8 @@ function hit(ev) {
   if (now - lastSnd > 40) { playHit(); lastSnd = now; }
   shake(weak ? 6 : 2.4);
   bumpBoss(weak ? 0.82 : 0.9);
-  if (pointer && live) live.sendTap(+nx.toFixed(3), +ny.toFixed(3));
-  if (displayHp <= 0) maybeForceReconcile();
+  if (!SPECTATE && pointer && live) live.sendTap(+nx.toFixed(3), +ny.toFixed(3));
+  if (!SPECTATE && displayHp <= 0) maybeForceReconcile();
 }
 
 let bumpT = 0;
@@ -433,18 +439,31 @@ async function boot() {
   else { el.setupBanner.classList.add('show'); scheduleReconnect(); }
 
   subscribeState((row) => { backendOk = true; handleServerRow(row); });
-  joinPresence((n) => { playersLive = n; el.players.textContent = fmt(n); });
+  joinPresence((n) => { playersLive = n; el.players.textContent = fmt(n); }, { track: !SPECTATE });
   live = joinLive({
     onDamage: onLiveDamage,
     onTap: (p) => showRemoteTap(p.x, p.y),
   });
 
-  setInterval(flush, FLUSH_INTERVAL);
-  // 表示HPが 0 付近で止まっていたら確定値を取りに行く保険
-  setInterval(() => { if (ready && displayHp <= 0) maybeForceReconcile(); }, 500);
-  window.addEventListener('beforeunload', flush);
+  if (!SPECTATE) {
+    setInterval(flush, FLUSH_INTERVAL);
+    // 表示HPが 0 付近で止まっていたら確定値を取りに行く保険
+    setInterval(() => { if (ready && displayHp <= 0) maybeForceReconcile(); }, 500);
+    window.addEventListener('beforeunload', flush);
+  } else {
+    showSpectateBadge();
+  }
 
   registerSW();
+}
+
+function showSpectateBadge() {
+  const b = document.createElement('div');
+  b.textContent = '👁 観戦モード（この画面の操作は反映されません）';
+  b.style.cssText = 'position:fixed;left:50%;top:8px;transform:translateX(-50%);z-index:80;'
+    + 'background:var(--panel-bg);color:var(--panel-ink);border:1px solid var(--border);'
+    + 'border-radius:999px;padding:5px 14px;font-size:11px;font-weight:700;pointer-events:none';
+  document.body.appendChild(b);
 }
 
 // ---------------- スキン ----------------

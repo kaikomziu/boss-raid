@@ -1,6 +1,6 @@
 // BOSS RAID service worker — アプリシェルをキャッシュしてオフラインでも起動できるように。
 // バージョンを上げると古いキャッシュは破棄される。
-const V = 'boss-raid-v1.6.0';
+const V = 'boss-raid-v1.6.1';
 const SHELL = [
   './', './index.html', './style.css', './manifest.webmanifest', './icon.svg', './icon-192.png',
   './js/main.js', './js/config.js', './js/bosses.js', './js/net.js', './js/fx.js', './js/hitfx.js',
