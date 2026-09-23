@@ -67,7 +67,7 @@ export default {
   'petacc.none': 'None', 'petacc.ribbon': 'Ribbon', 'petacc.cap': 'Cap', 'petacc.glass': 'Shades', 'petacc.crown': 'Crown',
   'petacc.lock': 'Unlocks at {stage}',
 
-  'help.body': 'Everyone online clicks down a single 100,000,000 HP boss together in real time. Beat it and a slightly stronger boss appears — forever.<br>Click/tap anywhere. Hit the glowing <b>weak points</b> for 2× damage. On keyboard, just attack while a weak point is showing for an automatic crit.',
+  'help.body': 'Everyone online clicks down a single 1,000,000 HP boss together in real time. Beat it and a slightly stronger boss appears — forever.<br>Click/tap anywhere. Hit the glowing <b>weak points</b> for 2× damage. On keyboard, just attack while a weak point is showing for an automatic crit.',
 
   'bl.intro.0': 'So you have come…', 'bl.intro.1': 'You dare challenge me?', 'bl.intro.2': "I'll send you back in pieces", 'bl.intro.3': 'None shall pass',
   'bl.idle.0': 'Not enough!', 'bl.idle.1': "That won't work", 'bl.idle.2': 'Is that all?', 'bl.idle.3': 'Come at me', 'bl.idle.4': 'Pathetic', 'bl.idle.5': 'Take this!',

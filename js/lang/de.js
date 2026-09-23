@@ -67,7 +67,7 @@ export default {
   'petacc.none': 'Keins', 'petacc.ribbon': 'Schleife', 'petacc.cap': 'Mütze', 'petacc.glass': 'Sonnenbrille', 'petacc.crown': 'Krone',
   'petacc.lock': 'Freischaltung bei {stage}',
 
-  'help.body': 'Alle Online-Spieler klopfen gemeinsam in Echtzeit einen einzigen Boss mit 100.000.000 HP herunter. Nach dem Sieg erscheint ein etwas stärkerer nächster Boss – endlos.<br>Klicke/tippe irgendwo. Triff die leuchtenden <b>Schwachstellen</b> für 2× Schaden. Mit Tastatur einfach angreifen, während eine sichtbar ist, für einen Auto-Crit.',
+  'help.body': 'Alle Online-Spieler klopfen gemeinsam in Echtzeit einen einzigen Boss mit 1.000.000 HP herunter. Nach dem Sieg erscheint ein etwas stärkerer nächster Boss – endlos.<br>Klicke/tippe irgendwo. Triff die leuchtenden <b>Schwachstellen</b> für 2× Schaden. Mit Tastatur einfach angreifen, während eine sichtbar ist, für einen Auto-Crit.',
 
   'bl.intro.0': 'Da bist du also…', 'bl.intro.1': 'Du wagst es, mich herauszufordern?', 'bl.intro.2': 'Ich schicke dich in Stücken zurück', 'bl.intro.3': 'Niemand kommt hier vorbei',
   'bl.idle.0': 'Nicht genug!', 'bl.idle.1': 'Das wirkt nicht', 'bl.idle.2': 'Ist das alles?', 'bl.idle.3': 'Komm her', 'bl.idle.4': 'Erbärmlich', 'bl.idle.5': 'Nimm das!',

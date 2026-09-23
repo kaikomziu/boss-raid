@@ -67,7 +67,7 @@ export default {
   'petacc.none': 'Nessuno', 'petacc.ribbon': 'Fiocco', 'petacc.cap': 'Cappello', 'petacc.glass': 'Occhiali', 'petacc.crown': 'Corona',
   'petacc.lock': 'Si sblocca a {stage}',
 
-  'help.body': "Tutti i giocatori online colpiscono insieme, in tempo reale, un unico boss da 100.000.000 di HP. Sconfitto quello, ne appare uno un po' più forte — all'infinito.<br>Clicca/tocca ovunque. Colpisci i <b>punti deboli</b> luminosi per 2× danni. Da tastiera, attacca mentre uno è visibile per un critico automatico.",
+  'help.body': "Tutti i giocatori online colpiscono insieme, in tempo reale, un unico boss da 1.000.000 di HP. Sconfitto quello, ne appare uno un po' più forte — all'infinito.<br>Clicca/tocca ovunque. Colpisci i <b>punti deboli</b> luminosi per 2× danni. Da tastiera, attacca mentre uno è visibile per un critico automatico.",
 
   'bl.intro.0': 'Sei venuto, dunque…', 'bl.intro.1': 'Osi sfidarmi?', 'bl.intro.2': 'Ti rispedirò indietro a pezzi', 'bl.intro.3': 'Nessuno passerà',
   'bl.idle.0': 'Non basta!', 'bl.idle.1': 'Non funziona', 'bl.idle.2': 'Tutto qui?', 'bl.idle.3': 'Fatti sotto', 'bl.idle.4': 'Patetico', 'bl.idle.5': 'Prendi questo!',

@@ -67,7 +67,7 @@ export default {
   'petacc.none': 'Aucun', 'petacc.ribbon': 'Ruban', 'petacc.cap': 'Casquette', 'petacc.glass': 'Lunettes', 'petacc.crown': 'Couronne',
   'petacc.lock': 'Débloqué à {stage}',
 
-  'help.body': "Tous les joueurs connectés frappent ensemble, en temps réel, un seul boss de 100 000 000 de PV. Une fois vaincu, un boss un peu plus fort apparaît — sans fin.<br>Cliquez/touchez n'importe où. Frappez les <b>points faibles</b> lumineux pour 2× de dégâts. Au clavier, attaquez pendant qu'un point faible est visible pour un crit automatique.",
+  'help.body': "Tous les joueurs connectés frappent ensemble, en temps réel, un seul boss de 1 000 000 de PV. Une fois vaincu, un boss un peu plus fort apparaît — sans fin.<br>Cliquez/touchez n'importe où. Frappez les <b>points faibles</b> lumineux pour 2× de dégâts. Au clavier, attaquez pendant qu'un point faible est visible pour un crit automatique.",
 
   'bl.intro.0': 'Te voilà donc…', 'bl.intro.1': 'Tu oses me défier ?', 'bl.intro.2': 'Je te renverrai en morceaux', 'bl.intro.3': 'Nul ne passera',
   'bl.idle.0': 'Pas assez !', 'bl.idle.1': 'Ça ne marche pas', 'bl.idle.2': "C'est tout ?", 'bl.idle.3': 'Viens donc', 'bl.idle.4': 'Pathétique', 'bl.idle.5': 'Prends ça !',

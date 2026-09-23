@@ -67,7 +67,7 @@ export default {
   'petacc.none': 'Nenhum', 'petacc.ribbon': 'Laço', 'petacc.cap': 'Boné', 'petacc.glass': 'Óculos', 'petacc.crown': 'Coroa',
   'petacc.lock': 'Desbloqueia em {stage}',
 
-  'help.body': 'Todos os jogadores online batem juntos, em tempo real, em um único chefe de 100.000.000 de HP. Ao vencê-lo aparece outro um pouco mais forte, para sempre.<br>Clique/toque em qualquer lugar. Acerte os <b>pontos fracos</b> brilhantes para 2× de dano. No teclado, ataque enquanto um estiver visível para um crítico automático.',
+  'help.body': 'Todos os jogadores online batem juntos, em tempo real, em um único chefe de 1.000.000 de HP. Ao vencê-lo aparece outro um pouco mais forte, para sempre.<br>Clique/toque em qualquer lugar. Acerte os <b>pontos fracos</b> brilhantes para 2× de dano. No teclado, ataque enquanto um estiver visível para um crítico automático.',
 
   'bl.intro.0': 'Então você veio…', 'bl.intro.1': 'Ousa me desafiar?', 'bl.intro.2': 'Vou te mandar de volta em pedaços', 'bl.intro.3': 'Ninguém passa',
   'bl.idle.0': 'Não é o bastante!', 'bl.idle.1': 'Isso não funciona', 'bl.idle.2': 'Só isso?', 'bl.idle.3': 'Venha até mim', 'bl.idle.4': 'Patético', 'bl.idle.5': 'Toma isto!',

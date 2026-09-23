@@ -67,7 +67,7 @@ export default {
   'petacc.none': 'Tidak ada', 'petacc.ribbon': 'Pita', 'petacc.cap': 'Topi', 'petacc.glass': 'Kacamata', 'petacc.crown': 'Mahkota',
   'petacc.lock': 'Terbuka di {stage}',
 
-  'help.body': 'Semua pemain online bersama-sama, secara real-time, mengeklik satu bos ber-HP 100.000.000. Setelah tumbang, muncul bos berikutnya yang sedikit lebih kuat — tanpa henti.<br>Klik/ketuk di mana saja. Kenai <b>titik lemah</b> yang bercahaya untuk 2× damage. Di keyboard, cukup serang saat titik lemah muncul untuk crit otomatis.',
+  'help.body': 'Semua pemain online bersama-sama, secara real-time, mengeklik satu bos ber-HP 1.000.000. Setelah tumbang, muncul bos berikutnya yang sedikit lebih kuat — tanpa henti.<br>Klik/ketuk di mana saja. Kenai <b>titik lemah</b> yang bercahaya untuk 2× damage. Di keyboard, cukup serang saat titik lemah muncul untuk crit otomatis.',
 
   'bl.intro.0': 'Jadi kau datang…', 'bl.intro.1': 'Berani menantangku?', 'bl.intro.2': 'Kukirim kau kembali berkeping-keping', 'bl.intro.3': 'Tak ada yang boleh lewat',
   'bl.idle.0': 'Belum cukup!', 'bl.idle.1': 'Itu tak mempan', 'bl.idle.2': 'Cuma begitu?', 'bl.idle.3': 'Ayo maju', 'bl.idle.4': 'Menyedihkan', 'bl.idle.5': 'Rasakan ini!',

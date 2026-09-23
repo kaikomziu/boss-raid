@@ -67,7 +67,7 @@ export default {
   'petacc.none': 'Yok', 'petacc.ribbon': 'Kurdele', 'petacc.cap': 'Şapka', 'petacc.glass': 'Gözlük', 'petacc.crown': 'Taç',
   'petacc.lock': '{stage} seviyesinde açılır',
 
-  'help.body': "Çevrimiçi tüm oyuncular gerçek zamanlı olarak birlikte 100.000.000 CP'lik tek bir patrona tıklar. Yenildiğinde biraz daha güçlü bir sonraki patron çıkar — sonsuza dek.<br>Herhangi bir yere tıkla/dokun. Parlayan <b>zayıf noktalara</b> vur, 2× hasar. Klavyede, bir zayıf nokta görünürken saldır, otomatik kritik.",
+  'help.body': "Çevrimiçi tüm oyuncular gerçek zamanlı olarak birlikte 1.000.000 CP'lik tek bir patrona tıklar. Yenildiğinde biraz daha güçlü bir sonraki patron çıkar — sonsuza dek.<br>Herhangi bir yere tıkla/dokun. Parlayan <b>zayıf noktalara</b> vur, 2× hasar. Klavyede, bir zayıf nokta görünürken saldır, otomatik kritik.",
 
   'bl.intro.0': 'Demek geldin…', 'bl.intro.1': 'Bana meydan okumaya mı cüret ediyorsun?', 'bl.intro.2': 'Seni parçalar halinde geri gönderirim', 'bl.intro.3': 'Kimse geçemez',
   'bl.idle.0': 'Yetmez!', 'bl.idle.1': 'İşe yaramaz', 'bl.idle.2': 'Bu kadar mı?', 'bl.idle.3': 'Gel bakalım', 'bl.idle.4': 'Zavallı', 'bl.idle.5': 'Al bakalım!',

@@ -12,5 +12,5 @@ export const FLUSH_INTERVAL = 450;
 export const LIVE_INTERVAL = 160;
 
 // 基準HP(ボス1体目)。以降 BASE_HP * 1.15^index
-export const BASE_HP = 100_000_000;
+export const BASE_HP = 1_000_000;
 export const HP_GROWTH = 1.15;

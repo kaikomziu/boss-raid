@@ -9,8 +9,8 @@ create table if not exists boss_raid_state (
   boss_index     int    not null default 0,
   boss_name      text   not null default 'スライム大王',
   boss_emoji     text   not null default '🟢',
-  max_hp         bigint not null default 100000000,
-  hp             bigint not null default 100000000,
+  max_hp         bigint not null default 1000000,
+  hp             bigint not null default 1000000,
   defeated_count bigint not null default 0,
   peak_players   bigint not null default 0,
   updated_at     timestamptz not null default now()
@@ -53,7 +53,7 @@ begin
   if st.hp <= 0 then
     n := st.boss_index + 1;
     -- 1.15^n。bigint オーバーフロー回避のため指数は 150 で頭打ち
-    nhp := floor(100000000 * power(1.15, least(n, 150)))::bigint;
+    nhp := floor(1000000 * power(1.15, least(n, 150)))::bigint;
     update boss_raid_state
        set boss_index      = n,
            defeated_count   = defeated_count + 1,

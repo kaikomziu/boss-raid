@@ -2,12 +2,12 @@
 
 **▶ 今すぐ遊ぶ / Play now: <https://kaikomziu.github.io/boss-raid/>**
 
-1億HP（100,000,000）のボスを、世界中のプレイヤーと**リアルタイム協力**でクリック連打して倒すブラウザゲーム。
+100万HP（1,000,000）のボスを、世界中のプレイヤーと**リアルタイム協力**でクリック連打して倒すブラウザゲーム。
 倒すたびに少しずつ強い（HP ×1.15）次のボスが**無限に出現**します。
 
 登録不要・完全無料・匿名。PC / スマホ対応。ホーム画面に追加すればアプリのように起動（PWA）。
 
-> BOSS RAID is a browser game where everyone online clicks down a single **100,000,000 HP boss together in real time**. Every hit lands on everyone's screen instantly. Beat it and a stronger boss appears — forever. Free, no sign-up, anonymous. *(UI is in Japanese.)*
+> BOSS RAID is a browser game where everyone online clicks down a single **1,000,000 HP boss together in real time**. Every hit lands on everyone's screen instantly. Beat it and a stronger boss appears — forever. Free, no sign-up, anonymous. *(UI is in Japanese.)*
 
 ## 特徴 / Features
 

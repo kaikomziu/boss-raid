@@ -67,7 +67,7 @@ export default {
   'petacc.none': 'Không', 'petacc.ribbon': 'Nơ', 'petacc.cap': 'Mũ', 'petacc.glass': 'Kính', 'petacc.crown': 'Vương miện',
   'petacc.lock': 'Mở khóa ở {stage}',
 
-  'help.body': 'Tất cả người chơi trực tuyến cùng nhau, theo thời gian thực, nhấp hạ một con boss duy nhất 100.000.000 HP. Hạ xong sẽ xuất hiện con boss tiếp theo mạnh hơn một chút — vô tận.<br>Nhấp/chạm bất kỳ đâu. Đánh trúng <b>điểm yếu</b> phát sáng để gây 2× sát thương. Với bàn phím, chỉ cần tấn công khi điểm yếu đang hiện để tự động chí mạng.',
+  'help.body': 'Tất cả người chơi trực tuyến cùng nhau, theo thời gian thực, nhấp hạ một con boss duy nhất 1.000.000 HP. Hạ xong sẽ xuất hiện con boss tiếp theo mạnh hơn một chút — vô tận.<br>Nhấp/chạm bất kỳ đâu. Đánh trúng <b>điểm yếu</b> phát sáng để gây 2× sát thương. Với bàn phím, chỉ cần tấn công khi điểm yếu đang hiện để tự động chí mạng.',
 
   'bl.intro.0': 'Vậy là ngươi đã đến…', 'bl.intro.1': 'Ngươi dám thách thức ta?', 'bl.intro.2': 'Ta sẽ trả ngươi về từng mảnh', 'bl.intro.3': 'Không ai được qua',
   'bl.idle.0': 'Chưa đủ!', 'bl.idle.1': 'Vô ích thôi', 'bl.idle.2': 'Chỉ vậy thôi à?', 'bl.idle.3': 'Lại đây', 'bl.idle.4': 'Thảm hại', 'bl.idle.5': 'Nhận lấy!',

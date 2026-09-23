@@ -67,7 +67,7 @@ export default {
   'petacc.none': 'Brak', 'petacc.ribbon': 'Kokarda', 'petacc.cap': 'Czapka', 'petacc.glass': 'Okulary', 'petacc.crown': 'Korona',
   'petacc.lock': 'Odblokowuje się na „{stage}”',
 
-  'help.body': 'Wszyscy gracze online razem, w czasie rzeczywistym, zaklikują jednego bossa ze 100 000 000 HP. Po pokonaniu pojawia się nieco silniejszy kolejny — bez końca.<br>Kliknij/dotknij gdziekolwiek. Trafiaj świecące <b>słabe punkty</b> dla 2× obrażeń. Na klawiaturze po prostu atakuj, gdy jeden jest widoczny, aby uzyskać auto-kryt.',
+  'help.body': 'Wszyscy gracze online razem, w czasie rzeczywistym, zaklikują jednego bossa ze 1 000 000 HP. Po pokonaniu pojawia się nieco silniejszy kolejny — bez końca.<br>Kliknij/dotknij gdziekolwiek. Trafiaj świecące <b>słabe punkty</b> dla 2× obrażeń. Na klawiaturze po prostu atakuj, gdy jeden jest widoczny, aby uzyskać auto-kryt.',
 
   'bl.intro.0': 'Więc przybyłeś…', 'bl.intro.1': 'Śmiesz mnie wyzywać?', 'bl.intro.2': 'Odeślę cię w kawałkach', 'bl.intro.3': 'Nikt nie przejdzie',
   'bl.idle.0': 'Za mało!', 'bl.idle.1': 'To nie działa', 'bl.idle.2': 'To wszystko?', 'bl.idle.3': 'Chodź no', 'bl.idle.4': 'Żałosne', 'bl.idle.5': 'Masz!',

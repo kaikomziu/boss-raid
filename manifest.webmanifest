@@ -1,7 +1,7 @@
 {
   "name": "BOSS RAID",
   "short_name": "BOSS RAID",
-  "description": "1億HPのボスを世界中のプレイヤーとリアルタイム協力で連打して倒すゲーム。",
+  "description": "100万HPのボスを世界中のプレイヤーとリアルタイム協力で連打して倒すゲーム。",
   "lang": "ja",
   "start_url": "./",
   "scope": "./",

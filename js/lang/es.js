@@ -67,7 +67,7 @@ export default {
   'petacc.none': 'Ninguno', 'petacc.ribbon': 'Lazo', 'petacc.cap': 'Gorra', 'petacc.glass': 'Gafas', 'petacc.crown': 'Corona',
   'petacc.lock': 'Se desbloquea en {stage}',
 
-  'help.body': 'Todos los jugadores conectados golpean juntos y en tiempo real a un único jefe de 100.000.000 de HP. Al vencerlo aparece otro un poco más fuerte, sin fin.<br>Haz clic/toca en cualquier sitio. Golpea los <b>puntos débiles</b> brillantes para 2× de daño. Con teclado, ataca mientras uno esté visible para un crítico automático.',
+  'help.body': 'Todos los jugadores conectados golpean juntos y en tiempo real a un único jefe de 1.000.000 de HP. Al vencerlo aparece otro un poco más fuerte, sin fin.<br>Haz clic/toca en cualquier sitio. Golpea los <b>puntos débiles</b> brillantes para 2× de daño. Con teclado, ataca mientras uno esté visible para un crítico automático.',
 
   'bl.intro.0': 'Así que has venido…', 'bl.intro.1': '¿Te atreves a desafiarme?', 'bl.intro.2': 'Te devolveré hecho pedazos', 'bl.intro.3': 'Nadie pasará',
   'bl.idle.0': '¡No basta!', 'bl.idle.1': 'Eso no funciona', 'bl.idle.2': '¿Eso es todo?', 'bl.idle.3': 'Ven a por mí', 'bl.idle.4': 'Patético', 'bl.idle.5': '¡Toma esto!',

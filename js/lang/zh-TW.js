@@ -67,7 +67,7 @@ export default {
   'petacc.none': '無', 'petacc.ribbon': '蝴蝶結', 'petacc.cap': '帽子', 'petacc.glass': '墨鏡', 'petacc.crown': '王冠',
   'petacc.lock': '{stage} 解鎖',
 
-  'help.body': '全球線上玩家一起即時點擊同一個 1 億 HP 的 Boss。擊破後會出現略強的下一個 Boss，無限循環。<br>點擊/觸控任意位置。命中發光的<b>弱點</b>造成 2 倍傷害。鍵盤操作時，弱點出現期間攻擊即自動爆擊。',
+  'help.body': '全球線上玩家一起即時點擊同一個 100 萬 HP 的 Boss。擊破後會出現略強的下一個 Boss，無限循環。<br>點擊/觸控任意位置。命中發光的<b>弱點</b>造成 2 倍傷害。鍵盤操作時，弱點出現期間攻擊即自動爆擊。',
 
   'bl.intro.0': '你終於來了…', 'bl.intro.1': '哦？想挑戰我？', 'bl.intro.2': '讓你有來無回', 'bl.intro.3': '休想通過此地',
   'bl.idle.0': '還差得遠！', 'bl.idle.1': '沒用的', 'bl.idle.2': '就這點本事？', 'bl.idle.3': '儘管來', 'bl.idle.4': '太弱了', 'bl.idle.5': '接招！',
